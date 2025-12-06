@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Upload, FileText, ChevronDown } from 'lucide-react';
@@ -25,6 +25,22 @@ const UserSetupForm = () => {
 
     const topics = getTopics();
     const difficulties = getDifficulties();
+
+    // Listen for auto-fill event from suggested quizzes
+    useEffect(() => {
+        const handleAutoFill = (event) => {
+            const { topic, difficulty } = event.detail;
+            setFormData(prev => ({
+                ...prev,
+                topic,
+                difficulty
+            }));
+            toast.success(`Auto-filled: ${topic} - ${difficulty}`);
+        };
+
+        window.addEventListener('autoFillQuiz', handleAutoFill);
+        return () => window.removeEventListener('autoFillQuiz', handleAutoFill);
+    }, []);
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
