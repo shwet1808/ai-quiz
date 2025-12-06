@@ -86,10 +86,28 @@ const QuestionCard = ({ question, onAnswer, onSkip }) => {
                     transition={{ duration: 0.3 }}
                 >
                     {/* Question */}
-                    <GlassCard className="p-8 mb-8">
-                        <h2 className="text-2xl md:text-3xl font-bold text-white text-center">
+                    <GlassCard className="p-6 sm:p-8 mb-8">
+                        <h2 className="text-2xl md:text-3xl font-bold text-white text-center mb-4">
                             {question.question}
                         </h2>
+
+                        {/* Question Image (if exists) */}
+                        {question.imageUrl && (
+                            <motion.div
+                                initial={{ opacity: 0, scale: 0.95 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                className="mt-6"
+                            >
+                                <div className="relative w-full max-w-2xl mx-auto rounded-xl overflow-hidden border border-white/20">
+                                    <img
+                                        src={question.imageUrl}
+                                        alt="Question context"
+                                        className="w-full h-auto max-h-96 object-contain bg-white/5"
+                                        loading="lazy"
+                                    />
+                                </div>
+                            </motion.div>
+                        )}
                     </GlassCard>
 
                     {/* Options */}
@@ -100,28 +118,30 @@ const QuestionCard = ({ question, onAnswer, onSkip }) => {
                                 onClick={() => handleAnswerClick(index)}
                                 disabled={isAnswered}
                                 className={`
-                  p-6 rounded-xl border-2 transition-all duration-300 text-left
-                  flex items-center justify-between gap-4
-                  ${getOptionClass(index)}
-                `}
+                                    p-4 sm:p-6 rounded-xl border-2 transition-all duration-300 text-left
+                                    flex items-center justify-between gap-4
+                                    ${getOptionClass(index)}
+                                `}
                                 whileHover={!isAnswered ? { scale: 1.02 } : {}}
                                 whileTap={!isAnswered ? { scale: 0.98 } : {}}
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ delay: index * 0.1 }}
                             >
-                                <div className="flex items-center gap-4 flex-1">
+                                <div className="flex items-center gap-3 sm:gap-4 flex-1 min-w-0">
                                     <div className={`
-                    w-10 h-10 rounded-full flex items-center justify-center font-bold text-lg
-                    ${isAnswered && index === question.correctAnswer ? 'bg-green-400 text-white' : ''}
-                    ${isAnswered && index === selectedAnswer && index !== question.correctAnswer ? 'bg-red-400 text-white' : ''}
-                    ${!isAnswered ? 'bg-white/10 text-white' : ''}
-                  `}>
+                                        w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center font-bold text-base sm:text-lg flex-shrink-0
+                                        ${isAnswered && index === question.correctAnswer ? 'bg-green-400 text-white' : ''}
+                                        ${isAnswered && index === selectedAnswer && index !== question.correctAnswer ? 'bg-red-400 text-white' : ''}
+                                        ${!isAnswered ? 'bg-white/10 text-white' : ''}
+                                    `}>
                                         {String.fromCharCode(65 + index)}
                                     </div>
-                                    <span className="text-white font-medium text-lg">{option}</span>
+                                    <span className="text-white font-medium text-base sm:text-lg break-words">{option}</span>
                                 </div>
-                                {getOptionIcon(index)}
+                                <div className="flex-shrink-0">
+                                    {getOptionIcon(index)}
+                                </div>
                             </motion.button>
                         ))}
                     </div>
@@ -138,9 +158,9 @@ const QuestionCard = ({ question, onAnswer, onSkip }) => {
                                 <GlassCard className="p-6 mb-6">
                                     <div className="flex items-start gap-3">
                                         <div className={`
-                      p-2 rounded-lg flex-shrink-0
-                      ${selectedAnswer === question.correctAnswer ? 'bg-green-400/20' : 'bg-blue-400/20'}
-                    `}>
+                                            p-2 rounded-lg flex-shrink-0
+                                            ${selectedAnswer === question.correctAnswer ? 'bg-green-400/20' : 'bg-blue-400/20'}
+                                        `}>
                                             {selectedAnswer === question.correctAnswer ? '✅' : 'ℹ️'}
                                         </div>
                                         <div>

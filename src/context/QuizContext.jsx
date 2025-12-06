@@ -3,6 +3,24 @@ import { getQuestions } from '../data/mockQuestions';
 
 const QuizContext = createContext();
 
+// Helper function to shuffle array
+const shuffleArray = (array) => {
+    const newArray = [...array];
+    for (let i = newArray.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+    }
+    return newArray;
+};
+
+// Helper function to get avatar based on score
+const getAvatarByScore = (score) => {
+    if (score >= 900) return '👑';
+    if (score >= 700) return '🏆';
+    if (score >= 500) return '⭐';
+    return '🎮';
+};
+
 export const useQuiz = () => {
     const context = useContext(QuizContext);
     if (!context) {
@@ -34,15 +52,48 @@ export const QuizProvider = ({ children }) => {
     const [quizCompleted, setQuizCompleted] = useState(false);
     const [score, setScore] = useState(0);
 
-    // Start quiz
+    // Start quiz with mock data
     const startQuiz = useCallback((userName, topic, difficulty, inputMode = 'text') => {
-        const quizQuestions = getQuestions(topic, difficulty, 10);
+        // Set user info
+        setUser({
+            name: userName,
+            avatar: getAvatarByScore(0),
+            totalScore: 0
+        });
 
-        setUser(prev => ({ ...prev, name: userName }));
+        // Set quiz configuration
         setQuizConfig({ topic, difficulty, inputMode });
-        setQuestions(quizQuestions);
+
+        // Get questions based on topic and difficulty
+        const quizQuestions = getQuestions(topic, difficulty);
+
+        // Shuffle and select 10 questions
+        const shuffledQuestions = shuffleArray([...quizQuestions]).slice(0, 10);
+
+        setQuestions(shuffledQuestions);
         setCurrentQuestionIndex(0);
-        setAnswers(new Array(quizQuestions.length).fill(null));
+        setAnswers(new Array(10).fill(-1));
+        setQuizStarted(true);
+        setQuizCompleted(false);
+        setScore(0);
+    }, []);
+
+    // Load quiz from AI-generated data
+    const loadQuizFromAPI = useCallback((userName, quizData, topic, difficulty) => {
+        // Set user info
+        setUser({
+            name: userName,
+            avatar: getAvatarByScore(0),
+            totalScore: 0
+        });
+
+        // Set quiz configuration
+        setQuizConfig({ topic, difficulty, inputMode: 'file' });
+
+        // Use AI-generated questions
+        setQuestions(quizData.questions);
+        setCurrentQuestionIndex(0);
+        setAnswers(new Array(quizData.questions.length).fill(-1));
         setQuizStarted(true);
         setQuizCompleted(false);
         setScore(0);
@@ -115,6 +166,7 @@ export const QuizProvider = ({ children }) => {
         quizCompleted,
         score,
         startQuiz,
+        loadQuizFromAPI,
         submitAnswer,
         skipQuestion,
         nextQuestion,
