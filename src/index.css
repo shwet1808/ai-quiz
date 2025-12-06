@@ -1,0 +1,139 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-slate-900 text-white font-sans antialiased;
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+  }
+
+  #root {
+    min-height: 100vh;
+  }
+}
+
+@layer components {
+
+  /* Glass Card Effect */
+  .glass-card {
+    @apply backdrop-blur-xl bg-white/10 border border-white/20 rounded-2xl shadow-xl;
+  }
+
+  .glass-card-hover {
+    @apply glass-card transition-all duration-300 hover:bg-white/15 hover:border-white/30 hover:shadow-2xl;
+  }
+
+  /* Gradient Text */
+  .gradient-text {
+    @apply bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600 bg-clip-text text-transparent;
+  }
+
+  /* Cosmic Button */
+  .cosmic-button {
+    @apply relative px-6 py-3 rounded-xl font-semibold text-white overflow-hidden;
+    @apply bg-gradient-to-r from-cyan-500 to-blue-600;
+    @apply transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-cyan-500/50;
+  }
+
+  .cosmic-button-secondary {
+    @apply relative px-6 py-3 rounded-xl font-semibold text-white overflow-hidden;
+    @apply bg-gradient-to-r from-purple-500 to-pink-600;
+    @apply transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-purple-500/50;
+  }
+
+  .cosmic-button-danger {
+    @apply relative px-6 py-3 rounded-xl font-semibold text-white overflow-hidden;
+    @apply bg-gradient-to-r from-red-500 to-orange-600;
+    @apply transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-red-500/50;
+  }
+
+  /* Input Styles */
+  .cosmic-input {
+    @apply w-full px-4 py-3 rounded-xl backdrop-blur-xl bg-white/10 border border-white/20;
+    @apply text-white placeholder-white/50 focus:outline-none focus:border-cyan-400/50 focus:ring-2 focus:ring-cyan-400/30;
+    @apply transition-all duration-300;
+  }
+
+  /* Scrollbar Styles */
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-track {
+    @apply bg-white/5 rounded-full;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    @apply bg-cyan-500/50 rounded-full hover:bg-cyan-500/70;
+  }
+}
+
+@layer utilities {
+
+  /* Animation Utilities */
+  .animate-in {
+    animation: fadeIn 0.5s ease-in-out;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* Text Shadow */
+  .text-glow {
+    text-shadow: 0 0 20px rgba(14, 165, 233, 0.5);
+  }
+
+  /* Smooth Scroll */
+  .smooth-scroll {
+    scroll-behavior: smooth;
+  }
+}
+
+/* Loading Spinner */
+.spinner {
+  border: 3px solid rgba(255, 255, 255, 0.1);
+  border-top: 3px solid #0ea5e9;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* Pulse Animation */
+@keyframes pulse {
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.animate-pulse-slow {
+  animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
