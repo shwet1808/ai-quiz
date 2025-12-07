@@ -43,6 +43,33 @@ npm run dev
 
 4. Open your browser and visit `http://localhost:5173`
 
+## 🔌 Backend Setup (Required for AI Features)
+
+The project includes an Express server for Gemini API integration.
+
+1. Navigate to the server directory:
+```bash
+cd server
+```
+
+2. Install server dependencies:
+```bash
+npm install
+```
+
+3. Create a `.env` file in the `server` directory with your Gemini API Key:
+```env
+GEMINI_API_KEY=your_api_key_here
+PORT=3001
+FRONTEND_URL=http://localhost:5173
+```
+
+4. Start the server:
+```bash
+npm start
+```
+The server runs on port 3001. Ensure both the frontend (Vite) and backend (Express) are running.
+
 ## 🏗️ Project Structure
 
 ```

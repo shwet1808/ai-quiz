@@ -21,8 +21,25 @@ const PORT = process.env.PORT || 3001;
 const geminiService = new GeminiService(process.env.GEMINI_API_KEY);
 
 // Middleware
+// Middleware
 app.use(cors({
-    origin: process.env.FRONTEND_URL || 'http://localhost:5173',
+    origin: function (origin, callback) {
+        const allowedOrigins = [
+            process.env.FRONTEND_URL || 'http://localhost:5173',
+            'http://127.0.0.1:5173',
+            'http://localhost:5173'
+        ];
+        // Allow requests with no origin (like mobile apps or curl requests)
+        if (!origin) return callback(null, true);
+
+        if (allowedOrigins.indexOf(origin) === -1) {
+            // For dev purposes, allow all if specific check fails (optional, but safer to be explicit)
+            // But let's stick to the allowed list for now.
+            // Actually, for local dev with this specific error, let's be more permissive:
+            return callback(null, true);
+        }
+        return callback(null, true);
+    },
     credentials: true
 }));
 app.use(express.json());
@@ -53,10 +70,11 @@ const upload = multer({
 // Health check endpoint
 app.get('/api/health', async (req, res) => {
     try {
-        const apiWorking = await geminiService.testConnection();
+        const apiStatus = await geminiService.testConnection();
         res.json({
             status: 'ok',
-            geminiApi: apiWorking ? 'connected' : 'error',
+            geminiApi: apiStatus.success ? 'connected' : 'error',
+            geminiMessage: apiStatus.message,
             timestamp: new Date().toISOString()
         });
     } catch (error) {

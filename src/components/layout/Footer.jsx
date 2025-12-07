@@ -70,9 +70,7 @@ const Footer = () => {
 
                 {/* Copyright */}
                 <div className="mt-8 pt-6 border-t border-white/10 text-center">
-                    <p className="text-white/60 text-sm flex items-center justify-center gap-2">
-                        Made with <Heart className="w-4 h-4 text-red-400 fill-red-400" /> © {currentYear} AI QuizGen
-                    </p>
+
                 </div>
             </div>
         </footer>

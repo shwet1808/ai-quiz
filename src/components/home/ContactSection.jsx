@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { Send, Mail, User, MessageSquare } from 'lucide-react';
 import { toast } from 'react-toastify';
 import GlassCard from '../ui/GlassCard';
-import Input from '../ui/Input';
+
 import Button from '../ui/Button';
 import { validateEmail } from '../../utils/helpers';
 
