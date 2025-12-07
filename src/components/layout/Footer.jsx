@@ -5,13 +5,13 @@ const Footer = () => {
     const currentYear = new Date().getFullYear();
 
     return (
-        <footer className="relative mt-20 border-t border-white/10 backdrop-blur-xl bg-white/5">
+        <footer className="relative mt-20 border-t border-border backdrop-blur-xl bg-background-secondary">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                     {/* About */}
                     <div>
                         <h3 className="text-lg font-bold gradient-text mb-3">AI QuizGen</h3>
-                        <p className="text-white/60 text-sm">
+                        <p className="text-text-secondary text-sm">
                             Challenge yourself with AI-generated quizzes on various topics.
                             Test your knowledge and compete on the leaderboard!
                         </p>
@@ -19,20 +19,20 @@ const Footer = () => {
 
                     {/* Quick Links */}
                     <div>
-                        <h3 className="text-lg font-bold text-white mb-3">Quick Links</h3>
+                        <h3 className="text-lg font-bold text-text mb-3">Quick Links</h3>
                         <ul className="space-y-2 text-sm">
                             <li>
-                                <a href="/#about" className="text-white/60 hover:text-cyan-400 transition-colors">
+                                <a href="/#about" className="text-text-secondary hover:text-accent transition-colors">
                                     About
                                 </a>
                             </li>
                             <li>
-                                <a href="/#contact" className="text-white/60 hover:text-cyan-400 transition-colors">
+                                <a href="/#contact" className="text-text-secondary hover:text-accent transition-colors">
                                     Contact
                                 </a>
                             </li>
                             <li>
-                                <a href="/leaderboard" className="text-white/60 hover:text-cyan-400 transition-colors">
+                                <a href="/leaderboard" className="text-text-secondary hover:text-accent transition-colors">
                                     Leaderboard
                                 </a>
                             </li>
@@ -41,36 +41,37 @@ const Footer = () => {
 
                     {/* Social */}
                     <div>
-                        <h3 className="text-lg font-bold text-white mb-3">Connect</h3>
+                        <h3 className="text-lg font-bold text-text mb-3">Connect</h3>
                         <div className="flex gap-3">
                             <a
-                                href="#"
-                                className="p-2 rounded-lg backdrop-blur-xl bg-white/10 hover:bg-white/20 transition-colors"
+                                href="https://github.com/shwet1808"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="p-2 rounded-lg bg-background-tertiary hover:bg-background-tertiary/80 transition-colors"
                                 aria-label="GitHub"
                             >
-                                <Github className="w-5 h-5 text-white" />
+                                <Github className="w-5 h-5 text-text" />
                             </a>
                             <a
-                                href="#"
-                                className="p-2 rounded-lg backdrop-blur-xl bg-white/10 hover:bg-white/20 transition-colors"
+                                href="https://x.com/shwet1808"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="p-2 rounded-lg bg-background-tertiary hover:bg-background-tertiary/80 transition-colors"
                                 aria-label="Twitter"
                             >
-                                <Twitter className="w-5 h-5 text-white" />
+                                <Twitter className="w-5 h-5 text-text" />
                             </a>
                             <a
-                                href="#"
-                                className="p-2 rounded-lg backdrop-blur-xl bg-white/10 hover:bg-white/20 transition-colors"
+                                href="https://www.linkedin.com/in/shwet-kumar-518b52339/"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="p-2 rounded-lg bg-background-tertiary hover:bg-background-tertiary/80 transition-colors"
                                 aria-label="LinkedIn"
                             >
-                                <Linkedin className="w-5 h-5 text-white" />
+                                <Linkedin className="w-5 h-5 text-text" />
                             </a>
                         </div>
                     </div>
-                </div>
-
-                {/* Copyright */}
-                <div className="mt-8 pt-6 border-t border-white/10 text-center">
-
                 </div>
             </div>
         </footer>

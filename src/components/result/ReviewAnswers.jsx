@@ -25,29 +25,29 @@ const ReviewAnswers = ({ questions, answers }) => {
                             <div className="flex items-start gap-3 mb-4">
                                 <div className={`
                   p-2 rounded-lg flex-shrink-0
-                  ${isCorrect ? 'bg-green-400/20' : wasSkipped ? 'bg-gray-400/20' : 'bg-red-400/20'}
+                  ${isCorrect ? 'bg-status-success/20' : wasSkipped ? 'bg-background-tertiary/20' : 'bg-status-error/20'}
                 `}>
                                     {isCorrect ? (
-                                        <Check className="w-5 h-5 text-green-400" />
+                                        <Check className="w-5 h-5 text-status-success" />
                                     ) : wasSkipped ? (
-                                        <span className="text-gray-400 font-bold">—</span>
+                                        <span className="text-text-muted font-bold">—</span>
                                     ) : (
-                                        <X className="w-5 h-5 text-red-400" />
+                                        <X className="w-5 h-5 text-status-error" />
                                     )}
                                 </div>
                                 <div className="flex-1">
                                     <div className="flex items-center gap-2 mb-2">
-                                        <span className="text-sm text-white/50">Question {index + 1}</span>
+                                        <span className="text-sm text-text-secondary">Question {index + 1}</span>
                                         <span className={`
                       px-2 py-1 rounded-full text-xs font-medium
-                      ${isCorrect ? 'bg-green-400/20 text-green-400' : ''}
-                      ${wasSkipped ? 'bg-gray-400/20 text-gray-400' : ''}
-                      ${!isCorrect && !wasSkipped ? 'bg-red-400/20 text-red-400' : ''}
+                      ${isCorrect ? 'bg-status-success/20 text-status-success' : ''}
+                      ${wasSkipped ? 'bg-background-tertiary text-text-muted' : ''}
+                      ${!isCorrect && !wasSkipped ? 'bg-status-error/20 text-status-error' : ''}
                     `}>
                                             {isCorrect ? 'Correct' : wasSkipped ? 'Skipped' : 'Incorrect'}
                                         </span>
                                     </div>
-                                    <h3 className="text-lg font-semibold text-white mb-4">
+                                    <h3 className="text-lg font-semibold text-text mb-4">
                                         {question.question}
                                     </h3>
 
@@ -62,26 +62,26 @@ const ReviewAnswers = ({ questions, answers }) => {
                                                     key={optIndex}
                                                     className={`
                             p-3 rounded-lg border-2 transition-all
-                            ${isCorrectAnswer ? 'border-green-400 bg-green-400/10' : 'border-white/10 bg-white/5'}
-                            ${isUserAnswer && !isCorrectAnswer ? 'border-red-400 bg-red-400/10' : ''}
+                            ${isCorrectAnswer ? 'border-status-success bg-status-success/10' : 'border-border bg-background-secondary'}
+                            ${isUserAnswer && !isCorrectAnswer ? 'border-status-error bg-status-error/10' : ''}
                           `}
                                                 >
                                                     <div className="flex items-center justify-between">
                                                         <div className="flex items-center gap-3">
                                                             <span className={`
                                 w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold
-                                ${isCorrectAnswer ? 'bg-green-400 text-white' : 'bg-white/10 text-white'}
-                                ${isUserAnswer && !isCorrectAnswer ? 'bg-red-400 text-white' : ''}
+                                ${isCorrectAnswer ? 'bg-status-success text-white' : 'bg-background-tertiary text-text'}
+                                ${isUserAnswer && !isCorrectAnswer ? 'bg-status-error text-white' : ''}
                               `}>
                                                                 {String.fromCharCode(65 + optIndex)}
                                                             </span>
-                                                            <span className="text-white">{option}</span>
+                                                            <span className="text-text">{option}</span>
                                                         </div>
                                                         {isCorrectAnswer && (
-                                                            <Check className="w-5 h-5 text-green-400" />
+                                                            <Check className="w-5 h-5 text-status-success" />
                                                         )}
                                                         {isUserAnswer && !isCorrectAnswer && (
-                                                            <X className="w-5 h-5 text-red-400" />
+                                                            <X className="w-5 h-5 text-status-error" />
                                                         )}
                                                     </div>
                                                 </div>
@@ -90,12 +90,12 @@ const ReviewAnswers = ({ questions, answers }) => {
                                     </div>
 
                                     {/* Explanation */}
-                                    <div className="mt-4 p-4 rounded-lg bg-blue-400/10 border border-blue-400/20">
+                                    <div className="mt-4 p-4 rounded-lg bg-accent/10 border border-accent/20">
                                         <div className="flex items-start gap-2">
-                                            <span className="text-blue-400 text-lg">ℹ️</span>
+                                            <span className="text-accent text-lg">ℹ️</span>
                                             <div>
-                                                <h4 className="font-semibold text-blue-400 mb-1">Explanation</h4>
-                                                <p className="text-white/80 text-sm">{question.explanation}</p>
+                                                <h4 className="font-semibold text-accent mb-1">Explanation</h4>
+                                                <p className="text-text-secondary text-sm">{question.explanation}</p>
                                             </div>
                                         </div>
                                     </div>

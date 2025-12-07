@@ -13,13 +13,13 @@ const ProgressBar = ({
         <div className={`w-full ${className}`}>
             {showLabel && (
                 <div className="flex justify-between items-center mb-2">
-                    <span className="text-sm text-white/70">Progress</span>
-                    <span className="text-sm font-semibold text-cyan-400">{percentage.toFixed(0)}%</span>
+                    <span className="text-sm text-text-secondary">Progress</span>
+                    <span className="text-sm font-semibold text-accent">{percentage.toFixed(0)}%</span>
                 </div>
             )}
-            <div className={`w-full bg-white/10 rounded-full overflow-hidden ${height}`}>
+            <div className={`w-full bg-background-tertiary rounded-full overflow-hidden ${height}`}>
                 <motion.div
-                    className="h-full bg-gradient-to-r from-cyan-500 via-blue-500 to-purple-600 rounded-full"
+                    className="h-full bg-gradient-to-r from-accent via-accent-secondary to-accent rounded-full"
                     initial={{ width: 0 }}
                     animate={{ width: `${percentage}%` }}
                     transition={{ duration: 0.5, ease: 'easeOut' }}

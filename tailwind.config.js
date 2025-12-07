@@ -4,22 +4,32 @@ export default {
         "./index.html",
         "./src/**/*.{js,ts,jsx,tsx}",
     ],
+    darkMode: 'class', // Enable class-based dark mode
     theme: {
         extend: {
             colors: {
-                cosmic: {
-                    50: '#f0f9ff',
-                    100: '#e0f2fe',
-                    200: '#bae6fd',
-                    300: '#7dd3fc',
-                    400: '#38bdf8',
-                    500: '#0ea5e9',
-                    600: '#0284c7',
-                    700: '#0369a1',
-                    800: '#075985',
-                    900: '#0c4a6e',
-                    950: '#082f49',
+                // Semantic colors using CSS variables
+                background: {
+                    DEFAULT: 'rgb(var(--bg-primary) / <alpha-value>)',
+                    secondary: 'rgb(var(--bg-secondary) / <alpha-value>)',
+                    tertiary: 'rgb(var(--bg-tertiary) / <alpha-value>)',
                 },
+                text: {
+                    DEFAULT: 'rgb(var(--text-primary) / <alpha-value>)',
+                    secondary: 'rgb(var(--text-secondary) / <alpha-value>)',
+                    muted: 'rgb(var(--text-muted) / <alpha-value>)',
+                },
+                accent: {
+                    DEFAULT: 'rgb(var(--accent-primary) / <alpha-value>)', // Orange
+                    hover: 'rgb(var(--accent-primary-hover) / <alpha-value>)',
+                    secondary: 'rgb(var(--accent-secondary) / <alpha-value>)', // Purple
+                },
+                status: {
+                    success: 'rgb(var(--status-success) / <alpha-value>)', // Green
+                    error: 'rgb(var(--status-error) / <alpha-value>)', // Red
+                    warning: 'rgb(var(--status-warning) / <alpha-value>)', // Yellow/Orange
+                },
+                border: 'rgb(var(--border-color) / <alpha-value>)',
             },
             fontFamily: {
                 sans: ['Inter', 'Roboto', 'sans-serif'],
@@ -30,21 +40,30 @@ export default {
             animation: {
                 'float': 'float 6s ease-in-out infinite',
                 'glow': 'glow 2s ease-in-out infinite alternate',
-                'shimmer': 'shimmer 2s linear infinite',
+                'fade-in': 'fadeIn 0.5s ease-out forwards',
+                'shimmer': 'shimmer 2s infinite',
             },
             keyframes: {
                 float: {
                     '0%, 100%': { transform: 'translateY(0px)' },
-                    '50%': { transform: 'translateY(-20px)' },
+                    '50%': { transform: 'translateY(-10px)' },
                 },
                 glow: {
-                    '0%': { boxShadow: '0 0 5px rgba(14, 165, 233, 0.5), 0 0 10px rgba(14, 165, 233, 0.3)' },
-                    '100%': { boxShadow: '0 0 20px rgba(14, 165, 233, 0.8), 0 0 30px rgba(14, 165, 233, 0.5)' },
+                    '0%': { boxShadow: '0 0 5px rgb(var(--accent-primary) / 0.5)' },
+                    '100%': { boxShadow: '0 0 20px rgb(var(--accent-primary) / 0.6)' },
+                },
+                fadeIn: {
+                    '0%': { opacity: '0', transform: 'translateY(10px)' },
+                    '100%': { opacity: '1', transform: 'translateY(0)' },
                 },
                 shimmer: {
-                    '0%': { backgroundPosition: '-1000px 0' },
-                    '100%': { backgroundPosition: '1000px 0' },
-                },
+                    '0%': { transform: 'translateX(-100%)' },
+                    '100%': { transform: 'translateX(100%)' }
+                }
+            },
+            boxShadow: {
+                'warm': '0 4px 20px -4px rgba(249, 115, 22, 0.1)',
+                'warm-lg': '0 8px 30px -4px rgba(249, 115, 22, 0.2)',
             },
         },
     },

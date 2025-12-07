@@ -60,3 +60,27 @@ export async function checkHealth() {
     const response = await fetch(`${API_BASE_URL}/health`);
     return response.json();
 }
+
+/**
+ * Generate quiz from a custom topic
+ * @param {string} topic - The custom topic
+ * @param {string} difficulty - Difficulty level
+ * @param {number} questionCount - Number of questions
+ * @returns {Promise<Object>} Quiz data
+ */
+export async function generateQuizFromTopic(topic, difficulty, questionCount = 10) {
+    const response = await fetch(`${API_BASE_URL}/generate/topic`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ topic, difficulty, questionCount })
+    });
+
+    if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'Failed to generate quiz from topic');
+    }
+
+    return response.json();
+}

@@ -1,5 +1,5 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
-import { createQuizPrompt, createImageQuizPrompt } from '../prompts/quizPrompt.js';
+import { createQuizPrompt, createImageQuizPrompt, createTopicQuizPrompt } from '../prompts/quizPrompt.js';
 
 class GeminiService {
     constructor(apiKey) {
@@ -9,7 +9,7 @@ class GeminiService {
     async generateQuizFromText(text, difficulty = 'Medium', questionCount = 10) {
         try {
             const model = this.genAI.getGenerativeModel({
-                model: 'models/gemini-2.5-flash',
+                model: 'gemini-1.5-flash-001',
                 generationConfig: { responseMimeType: 'application/json' }
             });
             const prompt = createQuizPrompt(text, difficulty, questionCount);
@@ -25,16 +25,24 @@ class GeminiService {
                 throw new Error('Invalid quiz structure: missing questions array');
             }
 
-            quizData.questions = quizData.questions.map((q, index) => ({
-                id: q.id || index + 1,
-                question: q.question || '',
-                options: q.options || [],
-                correctAnswer: q.correctAnswer ?? 0,
-                explanation: q.explanation || '',
-                difficulty: q.difficulty || difficulty,
-                topic: q.topic || 'General',
-                imageUrl: q.imageUrl || null
-            }));
+            quizData.questions = quizData.questions.map((q, index) => {
+                // Generate dynamic image URL if visual keyword is present
+                let imageUrl = q.imageUrl || null;
+                if (!imageUrl && q.visual_keyword) {
+                    imageUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(q.visual_keyword)}?width=800&height=600&nologo=true`;
+                }
+
+                return {
+                    id: q.id || index + 1,
+                    question: q.question || '',
+                    options: q.options || [],
+                    correctAnswer: q.correctAnswer ?? 0,
+                    explanation: q.explanation || '',
+                    difficulty: q.difficulty || difficulty,
+                    topic: q.topic || 'General',
+                    imageUrl: imageUrl
+                };
+            });
 
             return quizData;
         } catch (error) {
@@ -43,10 +51,55 @@ class GeminiService {
         }
     }
 
+    async generateQuizFromTopic(topic, difficulty = 'Medium', questionCount = 10) {
+        try {
+            const model = this.genAI.getGenerativeModel({
+                model: 'gemini-1.5-flash-001',
+                generationConfig: { responseMimeType: 'application/json' }
+            });
+            const prompt = createTopicQuizPrompt(topic, difficulty, questionCount);
+
+            const result = await model.generateContent(prompt);
+            const response = await result.response;
+            let responseText = response.text();
+
+            responseText = responseText.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+            const quizData = JSON.parse(responseText);
+
+            if (!quizData.questions || !Array.isArray(quizData.questions)) {
+                throw new Error('Invalid quiz structure: missing questions array');
+            }
+
+            quizData.questions = quizData.questions.map((q, index) => {
+                // Generate dynamic image URL if visual keyword is present
+                let imageUrl = q.imageUrl || null;
+                if (!imageUrl && q.visual_keyword) {
+                    imageUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(q.visual_keyword)}?width=800&height=600&nologo=true`;
+                }
+
+                return {
+                    id: q.id || index + 1,
+                    question: q.question || '',
+                    options: q.options || [],
+                    correctAnswer: q.correctAnswer ?? 0,
+                    explanation: q.explanation || '',
+                    difficulty: q.difficulty || difficulty,
+                    topic: q.topic || topic,
+                    imageUrl: imageUrl
+                };
+            });
+
+            return quizData;
+        } catch (error) {
+            console.error('Error generating quiz from topic:', error);
+            throw new Error(`Failed to generate quiz from topic: ${error.message}`);
+        }
+    }
+
     async generateQuizFromImage(imageBuffer, mimeType, difficulty = 'Medium', questionCount = 10) {
         try {
             const model = this.genAI.getGenerativeModel({
-                model: 'models/gemini-2.5-flash',
+                model: 'gemini-1.5-flash-001',
                 generationConfig: { responseMimeType: 'application/json' }
             });
 
@@ -76,16 +129,24 @@ class GeminiService {
                 throw new Error('Invalid quiz structure: missing questions array');
             }
 
-            quizData.questions = quizData.questions.map((q, index) => ({
-                id: q.id || index + 1,
-                question: q.question || '',
-                options: q.options || [],
-                correctAnswer: q.correctAnswer ?? 0,
-                explanation: q.explanation || '',
-                difficulty: q.difficulty || difficulty,
-                topic: q.topic || 'Visual Analysis',
-                imageUrl: q.imageUrl || null
-            }));
+            quizData.questions = quizData.questions.map((q, index) => {
+                // Generate dynamic image URL if visual keyword is present
+                let imageUrl = q.imageUrl || null;
+                if (!imageUrl && q.visual_keyword) {
+                    imageUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(q.visual_keyword)}?width=800&height=600&nologo=true`;
+                }
+
+                return {
+                    id: q.id || index + 1,
+                    question: q.question || '',
+                    options: q.options || [],
+                    correctAnswer: q.correctAnswer ?? 0,
+                    explanation: q.explanation || '',
+                    difficulty: q.difficulty || difficulty,
+                    topic: q.topic || 'Visual Analysis',
+                    imageUrl: imageUrl
+                };
+            });
 
             return quizData;
         } catch (error) {
@@ -96,7 +157,7 @@ class GeminiService {
 
     async testConnection() {
         try {
-            const model = this.genAI.getGenerativeModel({ model: 'models/gemini-2.5-flash' });
+            const model = this.genAI.getGenerativeModel({ model: 'gemini-1.5-flash-001' });
             const result = await model.generateContent('Say "API is working" if you can read this.');
             const response = await result.response;
             return { success: true, message: 'connected' };

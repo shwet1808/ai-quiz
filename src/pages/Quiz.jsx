@@ -113,18 +113,20 @@ const Quiz = () => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="min-h-screen pb-20"
+            className="min-h-[calc(100vh-4rem)] flex flex-col"
         >
             <QuizHeader timeLeft={timeLeft} totalTime={15} />
 
-            <AnimatePresence mode="wait">
-                <QuestionCard
-                    key={currentQuestion.id}
-                    question={currentQuestion}
-                    onAnswer={handleAnswer}
-                    onSkip={handleSkip}
-                />
-            </AnimatePresence>
+            <div className="flex-1 flex flex-col justify-center py-4 sm:py-8 pb-32">
+                <AnimatePresence mode="wait">
+                    <QuestionCard
+                        key={currentQuestion.id}
+                        question={currentQuestion}
+                        onAnswer={handleAnswer}
+                        onSkip={handleSkip}
+                    />
+                </AnimatePresence>
+            </div>
         </motion.div>
     );
 };

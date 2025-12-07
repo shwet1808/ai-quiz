@@ -12,11 +12,11 @@ const CircularTimer = ({
     const percentage = (timeLeft / totalTime) * 100;
     const offset = circumference - (percentage / 100) * circumference;
 
-    // Color based on time remaining
+    // Color based on time remaining uses semantic variables
     const getColor = () => {
-        if (percentage > 50) return '#06b6d4'; // cyan-500
-        if (percentage > 25) return '#f59e0b'; // amber-500
-        return '#ef4444'; // red-500
+        if (percentage > 50) return 'rgb(var(--accent-primary))';
+        if (percentage > 25) return 'rgb(var(--status-warning))';
+        return 'rgb(var(--status-error))';
     };
 
     return (
@@ -31,7 +31,7 @@ const CircularTimer = ({
                     cx={size / 2}
                     cy={size / 2}
                     r={radius}
-                    stroke="rgba(255, 255, 255, 0.1)"
+                    className="stroke-background-tertiary"
                     strokeWidth={strokeWidth}
                     fill="none"
                 />
@@ -59,7 +59,7 @@ const CircularTimer = ({
             {/* Time text */}
             <div className="absolute inset-0 flex items-center justify-center">
                 <motion.span
-                    className={`text-xl font-bold ${percentage <= 25 ? 'text-red-400 animate-pulse' : 'text-white'
+                    className={`text-xl font-bold ${percentage <= 25 ? 'text-status-error animate-pulse' : 'text-text'
                         }`}
                     animate={percentage <= 25 ? { scale: [1, 1.1, 1] } : {}}
                     transition={{ duration: 0.5, repeat: Infinity }}

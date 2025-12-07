@@ -82,7 +82,7 @@ const ContactSection = () => {
                     <h2 className="text-3xl md:text-4xl font-bold text-center mb-4 gradient-text">
                         Get In Touch
                     </h2>
-                    <p className="text-center text-white/70 mb-12">
+                    <p className="text-center text-text-secondary mb-12">
                         Have questions or feedback? We'd love to hear from you!
                     </p>
 
@@ -90,7 +90,7 @@ const ContactSection = () => {
                         <form onSubmit={handleSubmit} className="space-y-6">
                             {/* Name Input */}
                             <div className="relative">
-                                <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/50 z-10" />
+                                <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-text-muted z-10" />
                                 <input
                                     type="text"
                                     name="name"
@@ -98,20 +98,20 @@ const ContactSection = () => {
                                     onChange={handleChange}
                                     placeholder="Your Name"
                                     className={`
-                    w-full pl-12 pr-4 py-3 rounded-xl backdrop-blur-xl bg-white/10 border border-white/20
-                    text-white placeholder-white/50 focus:outline-none focus:border-cyan-400/50 
-                    focus:ring-2 focus:ring-cyan-400/30 transition-all duration-300
-                    ${errors.name ? 'border-red-400/50' : ''}
+                    w-full pl-12 pr-4 py-3 rounded-xl backdrop-blur-xl bg-background-tertiary border-2 border-border
+                    text-text placeholder-text-muted focus:outline-none focus:border-accent
+                    focus:ring-2 focus:ring-accent/20 transition-all duration-300
+                    ${errors.name ? 'border-status-error' : ''}
                   `}
                                 />
                                 {errors.name && (
-                                    <p className="mt-1 text-sm text-red-400">{errors.name}</p>
+                                    <p className="mt-1 text-sm text-status-error">{errors.name}</p>
                                 )}
                             </div>
 
                             {/* Email Input */}
                             <div className="relative">
-                                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/50 z-10" />
+                                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-text-muted z-10" />
                                 <input
                                     type="email"
                                     name="email"
@@ -119,20 +119,20 @@ const ContactSection = () => {
                                     onChange={handleChange}
                                     placeholder="Your Email"
                                     className={`
-                    w-full pl-12 pr-4 py-3 rounded-xl backdrop-blur-xl bg-white/10 border border-white/20
-                    text-white placeholder-white/50 focus:outline-none focus:border-cyan-400/50 
-                    focus:ring-2 focus:ring-cyan-400/30 transition-all duration-300
-                    ${errors.email ? 'border-red-400/50' : ''}
+                    w-full pl-12 pr-4 py-3 rounded-xl backdrop-blur-xl bg-background-tertiary border-2 border-border
+                    text-text placeholder-text-muted focus:outline-none focus:border-accent
+                    focus:ring-2 focus:ring-accent/20 transition-all duration-300
+                    ${errors.email ? 'border-status-error' : ''}
                   `}
                                 />
                                 {errors.email && (
-                                    <p className="mt-1 text-sm text-red-400">{errors.email}</p>
+                                    <p className="mt-1 text-sm text-status-error">{errors.email}</p>
                                 )}
                             </div>
 
                             {/* Message Textarea */}
                             <div className="relative">
-                                <MessageSquare className="absolute left-4 top-4 w-5 h-5 text-white/50 z-10" />
+                                <MessageSquare className="absolute left-4 top-4 w-5 h-5 text-text-muted z-10" />
                                 <textarea
                                     name="message"
                                     value={formData.message}
@@ -140,10 +140,10 @@ const ContactSection = () => {
                                     placeholder="Your Message"
                                     rows="5"
                                     className={`
-                    w-full pl-12 pr-4 py-3 rounded-xl backdrop-blur-xl bg-white/10 border border-white/20
-                    text-white placeholder-white/50 focus:outline-none focus:border-cyan-400/50 
-                    focus:ring-2 focus:ring-cyan-400/30 transition-all duration-300 resize-none
-                    ${errors.message ? 'border-red-400/50' : ''}
+                    w-full pl-12 pr-4 py-3 rounded-xl backdrop-blur-xl bg-background-tertiary border-2 border-border
+                    text-text placeholder-text-muted focus:outline-none focus:border-accent
+                    focus:ring-2 focus:ring-accent/20 transition-all duration-300 resize-none
+                    ${errors.message ? 'border-status-error' : ''}
                   `}
                                 />
                                 {errors.message && (

@@ -118,7 +118,7 @@ const Result = () => {
                                 delay: 0.5
                             }}
                         >
-                            <div className="w-24 h-24 mx-auto rounded-full bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center">
+                            <div className="w-24 h-24 mx-auto rounded-full bg-accent flex items-center justify-center shadow-lg shadow-accent/20">
                                 <Trophy className="w-12 h-12 text-white" />
                             </div>
                         </motion.div>
@@ -128,37 +128,37 @@ const Result = () => {
                             Quiz Complete!
                         </h1>
 
-                        <p className="text-xl text-white/80 mb-8">
+                        <p className="text-xl text-text-secondary mb-8">
                             {performanceMessage}
                         </p>
 
                         {/* Score Display */}
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                            <div className="backdrop-blur-xl bg-white/5 rounded-xl p-6">
-                                <div className="text-4xl font-bold text-cyan-400 mb-2">
+                            <div className="bg-background-secondary rounded-xl p-6 border border-border">
+                                <div className="text-4xl font-bold text-accent mb-2">
                                     {animatedScore}
                                 </div>
-                                <div className="text-white/70">Total Score</div>
+                                <div className="text-text-secondary">Total Score</div>
                             </div>
 
-                            <div className="backdrop-blur-xl bg-white/5 rounded-xl p-6">
-                                <div className="text-4xl font-bold text-green-400 mb-2">
+                            <div className="bg-background-secondary rounded-xl p-6 border border-border">
+                                <div className="text-4xl font-bold text-status-success mb-2">
                                     {scoreData.correct}/{scoreData.total}
                                 </div>
-                                <div className="text-white/70">Correct Answers</div>
+                                <div className="text-text-secondary">Correct Answers</div>
                             </div>
 
-                            <div className="backdrop-blur-xl bg-white/5 rounded-xl p-6">
-                                <div className="text-4xl font-bold text-purple-400 mb-2">
+                            <div className="bg-background-secondary rounded-xl p-6 border border-border">
+                                <div className="text-4xl font-bold text-accent-secondary mb-2">
                                     {scoreData.percentage}%
                                 </div>
-                                <div className="text-white/70">Accuracy</div>
+                                <div className="text-text-secondary">Accuracy</div>
                             </div>
                         </div>
 
                         {/* Coins Earned */}
                         <motion.div
-                            className="inline-flex items-center gap-3 px-6 py-3 rounded-full bg-gradient-to-r from-yellow-500 to-orange-500 mb-8"
+                            className="inline-flex items-center gap-3 px-6 py-3 rounded-full bg-status-warning text-white mb-8 shadow-lg shadow-status-warning/30"
                             initial={{ scale: 0 }}
                             animate={{ scale: 1 }}
                             transition={{ delay: 1, type: 'spring' }}

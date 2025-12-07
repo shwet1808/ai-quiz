@@ -3,108 +3,157 @@
 @tailwind utilities;
 
 @layer base {
-  body {
-    @apply bg-slate-900 text-white font-sans antialiased;
-    margin: 0;
-    padding: 0;
-    overflow-x: hidden;
+  :root {
+    /* Light Mode - Warm & High Contrast (Orange Tinted White) */
+    --bg-primary: 255 252 248;
+    /* #fffcf8 - Very subtle warm/orange-white page background */
+    --bg-secondary: 255 255 255;
+    /* #ffffff - Pure White Cards */
+    --bg-tertiary: 255 241 230;
+    /* #fff1e6 - Very light orange tint for inputs/buttons */
+
+    --text-primary: 0 0 0;
+    /* #000000 - Pure Black for maximum contrast */
+    --text-secondary: 33 33 33;
+    /* #212121 - Very Dark Gray */
+    --text-muted: 100 100 100;
+    /* #646464 - Medium Gray */
+
+    --accent-primary: 249 115 22;
+    /* #f97316 (Orange-500) - Primary Brand Color */
+    --accent-primary-hover: 234 88 12;
+    /* #ea580c (Orange-600) */
+    --accent-secondary: 147 51 234;
+    /* #9333ea (Purple-600) */
+
+    --status-success: 22 163 74;
+    /* #16a34a (Green-600) */
+    --status-error: 220 38 38;
+    /* #dc2626 (Red-600) */
+    --status-warning: 202 138 4;
+    /* #ca8a04 (Yellow-600) */
+
+    --border-color: 0 0 0;
+    /* #000000 - Black borders as requested (will use opacity for subtlety) */
   }
 
-  #root {
-    min-height: 100vh;
+  /* Dark Mode Palette - Preserved */
+  .dark {
+    --bg-primary: 15 23 42;
+    /* #0f172a */
+    --bg-secondary: 30 41 59;
+    /* #1e293b */
+    --bg-tertiary: 51 65 85;
+    /* #334155 */
+
+    --text-primary: 249 250 251;
+    /* #f9fafb */
+    --text-secondary: 209 213 219;
+    /* #d1d5db */
+    --text-muted: 148 163 184;
+    /* #94a3b8 */
+
+    --accent-primary: 251 146 60;
+    /* #fb923c */
+    --accent-primary-hover: 249 115 22;
+    /* #f97316 */
+    --accent-secondary: 168 85 247;
+    /* #a855f7 */
+
+    --status-success: 74 222 128;
+    /* #4ade80 */
+    --status-error: 248 113 113;
+    /* #f87171 */
+    --status-warning: 250 204 21;
+    /* #facc15 */
+
+    --border-color: 51 65 85;
+    /* #334155 */
+  }
+
+  body {
+    @apply bg-background text-text transition-colors duration-300 font-sans antialiased;
+    margin: 0;
+    padding: 0;
+  }
+
+  /* Custom Scrollbar */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-background-secondary;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-border/20 rounded-full hover:bg-accent/50 transition-colors;
   }
 }
 
 @layer components {
 
-  /* Glass Card Effect */
+  /* Modern Glass Card */
   .glass-card {
-    @apply backdrop-blur-xl bg-white/10 border border-white/20 rounded-2xl shadow-xl;
+    @apply backdrop-blur-md rounded-2xl transition-all duration-300;
+    /* Light mode: Warm Opaque White with Thicker Border and Warm Shadow */
+    @apply bg-white border-2 border-black/15 shadow-warm;
+    /* Dark mode override */
+    @apply dark:bg-background-secondary/60 dark:border-border/50 dark:shadow-xl dark:border;
   }
 
   .glass-card-hover {
-    @apply glass-card transition-all duration-300 hover:bg-white/15 hover:border-white/30 hover:shadow-2xl;
+    @apply glass-card hover:shadow-warm-lg hover:scale-[1.01] hover:border-accent/40;
   }
 
   /* Gradient Text */
   .gradient-text {
-    @apply bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600 bg-clip-text text-transparent;
+    @apply bg-gradient-to-r from-accent to-accent-secondary bg-clip-text text-transparent;
   }
 
-  /* Cosmic Button */
-  .cosmic-button {
-    @apply relative px-6 py-3 rounded-xl font-semibold text-white overflow-hidden;
-    @apply bg-gradient-to-r from-cyan-500 to-blue-600;
-    @apply transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-cyan-500/50;
+  /* Buttons */
+  .btn-primary {
+    @apply relative px-6 py-3 rounded-xl font-bold text-white overflow-hidden transition-all duration-300;
+    @apply bg-gradient-to-r from-accent to-accent-hover shadow-lg shadow-accent/20;
+    @apply hover:scale-105 hover:shadow-accent/40 active:scale-95;
   }
 
-  .cosmic-button-secondary {
-    @apply relative px-6 py-3 rounded-xl font-semibold text-white overflow-hidden;
-    @apply bg-gradient-to-r from-purple-500 to-pink-600;
-    @apply transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-purple-500/50;
+  .btn-secondary {
+    @apply relative px-6 py-3 rounded-xl font-semibold text-text overflow-hidden transition-all duration-300;
+    /* Light Mode: Thicker border for secondary buttons */
+    @apply bg-background-tertiary border-2 border-black/15 hover:bg-white hover:border-accent;
+    @apply hover:scale-105 active:scale-95 hover:text-accent;
   }
 
-  .cosmic-button-danger {
-    @apply relative px-6 py-3 rounded-xl font-semibold text-white overflow-hidden;
-    @apply bg-gradient-to-r from-red-500 to-orange-600;
-    @apply transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-red-500/50;
+  .btn-ghost {
+    @apply px-4 py-2 rounded-lg font-medium text-text-secondary transition-colors duration-200;
+    @apply hover:text-accent hover:bg-background-tertiary;
   }
 
-  /* Input Styles */
-  .cosmic-input {
-    @apply w-full px-4 py-3 rounded-xl backdrop-blur-xl bg-white/10 border border-white/20;
-    @apply text-white placeholder-white/50 focus:outline-none focus:border-cyan-400/50 focus:ring-2 focus:ring-cyan-400/30;
-    @apply transition-all duration-300;
-  }
-
-  /* Scrollbar Styles */
-  .custom-scrollbar::-webkit-scrollbar {
-    width: 8px;
-  }
-
-  .custom-scrollbar::-webkit-scrollbar-track {
-    @apply bg-white/5 rounded-full;
-  }
-
-  .custom-scrollbar::-webkit-scrollbar-thumb {
-    @apply bg-cyan-500/50 rounded-full hover:bg-cyan-500/70;
+  /* Inputs */
+  .input-field {
+    @apply w-full px-4 py-3 rounded-xl transition-all duration-300;
+    /* Light Mode: Thicker border for inputs */
+    @apply bg-background-tertiary border-2 border-black/15 text-text placeholder-text-muted;
+    @apply focus:outline-none focus:bg-white focus:border-accent focus:ring-2 focus:ring-accent/20;
   }
 }
 
 @layer utilities {
-
-  /* Animation Utilities */
-  .animate-in {
-    animation: fadeIn 0.5s ease-in-out;
+  .text-shadow-sm {
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
   }
 
-  @keyframes fadeIn {
-    from {
-      opacity: 0;
-      transform: translateY(10px);
-    }
-
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-
-  /* Text Shadow */
   .text-glow {
-    text-shadow: 0 0 20px rgba(14, 165, 233, 0.5);
-  }
-
-  /* Smooth Scroll */
-  .smooth-scroll {
-    scroll-behavior: smooth;
+    text-shadow: 0 0 20px rgb(var(--accent-primary) / 0.3);
   }
 }
 
 /* Loading Spinner */
 .spinner {
-  border: 3px solid rgba(255, 255, 255, 0.1);
-  border-top: 3px solid #0ea5e9;
+  border: 3px solid rgb(var(--bg-secondary));
+  border-top: 3px solid rgb(var(--accent-primary));
   border-radius: 50%;
   width: 40px;
   height: 40px;
@@ -119,21 +168,4 @@
   100% {
     transform: rotate(360deg);
   }
-}
-
-/* Pulse Animation */
-@keyframes pulse {
-
-  0%,
-  100% {
-    opacity: 1;
-  }
-
-  50% {
-    opacity: 0.5;
-  }
-}
-
-.animate-pulse-slow {
-  animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }

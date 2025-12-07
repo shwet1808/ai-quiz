@@ -148,11 +148,74 @@ const UserSetupForm = () => {
             return;
         }
 
-        // Text mode - use mock data
+        // Text mode
         if (formData.inputMode === 'text') {
-            startQuiz(formData.name, formData.topic, formData.difficulty, 'text');
-            navigate('/quiz');
-            return;
+            // Check if it's a standard mock topic
+            const isMockTopic = topics.includes(formData.topic);
+
+            if (isMockTopic) {
+                // Use built-in mock questions
+                startQuiz(formData.name, formData.topic, formData.difficulty, 'text');
+                navigate('/quiz');
+                return;
+            } else {
+                // Custom topic - Use AI Generation
+                setUploading(true);
+                setProcessingStatus(`Generating questions for "${formData.topic}"...`);
+
+                try {
+                    // Reuse the gemini service via the same API endpoint used for text uploads
+                    // We'll create a synthetic "file" or just call a new method if we had one.
+                    // Ideally we should have a clearer API for this. 
+                    // For now, let's treat it as a text-based generation request.
+                    // Since we don't have a direct "generate from topic" endpoint exposed in this component's imports yet,
+                    // we might need to modify apiService.js or assume a new endpoint.
+
+                    // Actually, we can reuse the uploadPDF logic but modify the backend? 
+                    // No, cleaner to add a specific handler.
+                    // For now, let's create a temporary text file with the topic prompt and upload it? 
+                    // That's a hack.
+                    // Better approach: Let's assume the backend 'uploadPDF' endpoint can also accept raw text or we add a new one.
+
+                    // LET'S EDIT: We will call a new function `generateQuizFromTopic` which we will implement effectively by 
+                    // calling the backend with a text payload.
+                    // Since we don't have that yet, let's use a workaround:
+                    // We will create a simple text file "topic.txt" containing the topic request and upload it as a "text" file
+                    // if the backend supports it. The backend currently supports PDF.
+
+                    // WAITING: I should probably update apiService.js first to support custom topic generation properly.
+                    // But for this step, I'll implement the UI logic to call a function I will add next.
+
+                    const { generateQuizFromTopic } = await import('../../services/apiService');
+
+                    const result = await generateQuizFromTopic(
+                        formData.topic,
+                        formData.difficulty,
+                        formData.questionCount
+                    );
+
+                    if (result.success) {
+                        setProcessingStatus('Quiz generated successfully!');
+                        toast.success(`Generated ${result.quiz.questions.length} questions for ${formData.topic}!`);
+
+                        loadQuizFromAPI(
+                            formData.name,
+                            result.quiz,
+                            formData.topic,
+                            formData.difficulty
+                        );
+
+                        setTimeout(() => navigate('/quiz'), 500);
+                    }
+                } catch (error) {
+                    console.error('Generation error:', error);
+                    toast.error(error.message || 'Failed to generate quiz.');
+                    setProcessingStatus('');
+                } finally {
+                    setUploading(false);
+                }
+                return;
+            }
         }
 
         // File mode - use AI generation
@@ -211,7 +274,7 @@ const UserSetupForm = () => {
                     <h2 className="text-3xl md:text-4xl font-bold text-center mb-4 gradient-text">
                         Start Your Quiz
                     </h2>
-                    <p className="text-center text-white/70 mb-8">
+                    <p className="text-center text-text-secondary mb-8">
                         Fill in your details and choose your preferences
                     </p>
 
@@ -236,7 +299,7 @@ const UserSetupForm = () => {
 
                                 {/* Input Mode Toggle */}
                                 <div>
-                                    <label className="block text-sm font-medium text-white/80 mb-3">
+                                    <label className="block text-sm font-medium text-text-secondary mb-3">
                                         Input Mode
                                     </label>
                                     <div className="grid grid-cols-2 gap-4">
@@ -249,8 +312,8 @@ const UserSetupForm = () => {
                                             className={`
                                                 p-4 rounded-xl border-2 transition-all duration-300 flex items-center justify-center gap-2
                                                 ${formData.inputMode === 'text'
-                                                    ? 'border-cyan-400 bg-cyan-400/20'
-                                                    : 'border-white/20 bg-white/5 hover:border-white/40'
+                                                    ? 'border-accent bg-accent/20 text-accent'
+                                                    : 'border-border bg-background-tertiary text-text-secondary hover:border-accent/50 hover:text-text'
                                                 }
                                             `}
                                             whileHover={{ scale: 1.02 }}
@@ -266,8 +329,8 @@ const UserSetupForm = () => {
                                             className={`
                                                 p-4 rounded-xl border-2 transition-all duration-300 flex items-center justify-center gap-2
                                                 ${formData.inputMode === 'file'
-                                                    ? 'border-cyan-400 bg-cyan-400/20'
-                                                    : 'border-white/20 bg-white/5 hover:border-white/40'
+                                                    ? 'border-accent bg-accent/20 text-accent'
+                                                    : 'border-border bg-background-tertiary text-text-secondary hover:border-accent/50 hover:text-text'
                                                 }
                                             `}
                                             whileHover={{ scale: 1.02 }}
@@ -284,29 +347,62 @@ const UserSetupForm = () => {
                                     <>
                                         {/* Topic Selection */}
                                         <div>
-                                            <label className="block text-sm font-medium text-white/80 mb-2">
-                                                Select Topic <span className="text-red-400">*</span>
+                                            <label className="block text-sm font-medium text-text-secondary mb-2">
+                                                Select Topic <span className="text-status-error">*</span>
                                             </label>
                                             <div className="relative">
                                                 <select
                                                     name="topic"
-                                                    value={formData.topic}
-                                                    onChange={handleInputChange}
-                                                    className="w-full px-4 py-3 rounded-xl backdrop-blur-xl bg-white/10 border border-white/20 text-white appearance-none focus:outline-none focus:border-cyan-400/50 focus:ring-2 focus:ring-cyan-400/30 transition-all duration-300 cursor-pointer"
+                                                    value={topics.includes(formData.topic) ? formData.topic : 'Custom'}
+                                                    onChange={(e) => {
+                                                        const value = e.target.value;
+                                                        if (value === 'Custom') {
+                                                            setFormData(prev => ({ ...prev, topic: '' }));
+                                                        } else {
+                                                            setFormData(prev => ({ ...prev, topic: value }));
+                                                        }
+                                                    }}
+                                                    className="w-full px-4 py-3 rounded-xl input-field appearance-none cursor-pointer"
                                                 >
-                                                    <option value="" className="bg-slate-800">Select a topic...</option>
+                                                    <option value="" className="bg-background-secondary text-text" disabled>Select a topic...</option>
                                                     {topics.map(topic => (
-                                                        <option key={topic} value={topic} className="bg-slate-800">
+                                                        <option key={topic} value={topic} className="bg-background-secondary text-text">
                                                             {topic}
                                                         </option>
                                                     ))}
+                                                    <option value="Custom" className="bg-background-secondary font-semibold text-accent">✨ Custom Topic</option>
                                                 </select>
-                                                <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/50 pointer-events-none" />
+                                                <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-text-muted pointer-events-none" />
                                             </div>
-                                            {errors.topic && (
-                                                <p className="mt-1 text-sm text-red-400">{errors.topic}</p>
-                                            )}
                                         </div>
+
+                                        {/* Custom Topic Input */}
+                                        <AnimatePresence>
+                                            {(!topics.includes(formData.topic) || formData.topic === '') && (
+                                                <motion.div
+                                                    initial={{ opacity: 0, height: 0, marginTop: 0 }}
+                                                    animate={{ opacity: 1, height: 'auto', marginTop: 16 }}
+                                                    exit={{ opacity: 0, height: 0, marginTop: 0 }}
+                                                    className="overflow-hidden"
+                                                >
+                                                    <Input
+                                                        label="Enter Custom Topic"
+                                                        name="topic"
+                                                        value={formData.topic}
+                                                        onChange={handleInputChange}
+                                                        placeholder="E.g., Quantum Physics, 90s Pop Music, French Cuisine..."
+                                                        required
+                                                        error={errors.topic}
+                                                        autoFocus
+                                                    />
+                                                </motion.div>
+                                            )}
+                                        </AnimatePresence>
+
+                                        {/* Show error if standard topic selection is empty and not custom mode */}
+                                        {errors.topic && topics.includes(formData.topic) && (
+                                            <p className="mt-1 text-sm text-status-error">{errors.topic}</p>
+                                        )}
                                     </>
                                 )}
 
@@ -323,7 +419,7 @@ const UserSetupForm = () => {
                                                 <div
                                                     className={`
                                                         relative border-2 border-dashed rounded-xl p-6 sm:p-8 text-center transition-all duration-300
-                                                        ${dragActive ? 'border-cyan-400 bg-cyan-400/10' : 'border-white/30 bg-white/5'}
+                                                        ${dragActive ? 'border-accent bg-accent/10' : 'border-border bg-background-secondary'}
                                                     `}
                                                     onDragEnter={handleDrag}
                                                     onDragLeave={handleDrag}
@@ -336,25 +432,25 @@ const UserSetupForm = () => {
                                                         onChange={handleFileChange}
                                                         className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                                                     />
-                                                    <Upload className="w-12 h-12 mx-auto mb-4 text-cyan-400" />
-                                                    <p className="text-white/80 mb-2 text-sm sm:text-base">
+                                                    <Upload className="w-12 h-12 mx-auto mb-4 text-accent" />
+                                                    <p className="text-text mb-2 text-sm sm:text-base">
                                                         Drag & drop your file here, or click to browse
                                                     </p>
-                                                    <p className="text-white/50 text-xs sm:text-sm">
+                                                    <p className="text-text-muted text-xs sm:text-sm">
                                                         Supports PDF, JPG, PNG, WebP (Max 10MB)
                                                     </p>
-                                                    <p className="text-cyan-400 text-xs mt-2">
+                                                    <p className="text-accent text-xs mt-2">
                                                         ✨ AI will analyze your file and generate quiz questions
                                                     </p>
                                                 </div>
                                             ) : (
-                                                <div className="p-4 rounded-xl bg-white/10 border border-white/20">
+                                                <div className="p-4 rounded-xl bg-background-secondary border border-border">
                                                     <div className="flex items-center justify-between">
                                                         <div className="flex items-center gap-3 flex-1 min-w-0">
-                                                            <CheckCircle className="w-6 h-6 text-green-400 flex-shrink-0" />
+                                                            <CheckCircle className="w-6 h-6 text-status-success flex-shrink-0" />
                                                             <div className="min-w-0 flex-1">
-                                                                <p className="text-white font-medium truncate">{uploadedFile.name}</p>
-                                                                <p className="text-white/50 text-sm">
+                                                                <p className="text-text font-medium truncate">{uploadedFile.name}</p>
+                                                                <p className="text-text-muted text-sm">
                                                                     {(uploadedFile.size / 1024 / 1024).toFixed(2)} MB
                                                                 </p>
                                                             </div>
@@ -362,9 +458,9 @@ const UserSetupForm = () => {
                                                         <button
                                                             type="button"
                                                             onClick={removeFile}
-                                                            className="p-2 rounded-lg hover:bg-white/10 transition-colors flex-shrink-0"
+                                                            className="p-2 rounded-lg hover:bg-background-tertiary transition-colors flex-shrink-0"
                                                         >
-                                                            <X className="w-5 h-5 text-white/70" />
+                                                            <X className="w-5 h-5 text-text-secondary" />
                                                         </button>
                                                     </div>
                                                 </div>
@@ -375,8 +471,8 @@ const UserSetupForm = () => {
 
                                 {/* Difficulty Selection */}
                                 <div>
-                                    <label className="block text-sm font-medium text-white/80 mb-3">
-                                        Difficulty Level <span className="text-red-400">*</span>
+                                    <label className="block text-sm font-medium text-text-secondary mb-3">
+                                        Difficulty Level <span className="text-status-error">*</span>
                                     </label>
                                     <div className="grid grid-cols-3 gap-3 sm:gap-4">
                                         {difficulties.map((diff) => (
@@ -387,8 +483,8 @@ const UserSetupForm = () => {
                                                 className={`
                                                     p-3 sm:p-4 rounded-xl border-2 transition-all duration-300
                                                     ${formData.difficulty === diff
-                                                        ? 'border-cyan-400 bg-cyan-400/20'
-                                                        : 'border-white/20 bg-white/5 hover:border-white/40'
+                                                        ? 'border-accent bg-accent/20'
+                                                        : 'border-border bg-background-tertiary hover:border-accent/30'
                                                     }
                                                 `}
                                                 whileHover={{ scale: 1.05 }}
@@ -398,13 +494,13 @@ const UserSetupForm = () => {
                                                     <div className="text-xl sm:text-2xl mb-1 sm:mb-2">
                                                         {diff === 'Easy' ? '😊' : diff === 'Medium' ? '🤔' : '🔥'}
                                                     </div>
-                                                    <div className="font-semibold text-white text-sm sm:text-base">{diff}</div>
+                                                    <div className={`font-semibold text-sm sm:text-base ${formData.difficulty === diff ? 'text-accent' : 'text-text'}`}>{diff}</div>
                                                 </div>
                                             </motion.button>
                                         ))}
                                     </div>
                                     {errors.difficulty && (
-                                        <p className="mt-1 text-sm text-red-400">{errors.difficulty}</p>
+                                        <p className="mt-1 text-sm text-status-error">{errors.difficulty}</p>
                                     )}
                                 </div>
 
@@ -419,7 +515,7 @@ const UserSetupForm = () => {
                                 </Button>
 
                                 {formData.inputMode === 'file' && (
-                                    <p className="text-center text-white/50 text-sm">
+                                    <p className="text-center text-text-muted text-sm">
                                         🤖 Powered by Google Gemini AI
                                     </p>
                                 )}

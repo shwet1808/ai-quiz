@@ -39,7 +39,7 @@ const AboutSection = () => {
                     <h2 className="text-3xl md:text-4xl font-bold text-center mb-4 gradient-text">
                         How It Works
                     </h2>
-                    <p className="text-center text-white/70 mb-12 max-w-2xl mx-auto">
+                    <p className="text-center text-text-secondary mb-12 max-w-2xl mx-auto">
                         Our AI-powered quiz generator creates personalized quizzes based on your preferences.
                         Choose your topic, select difficulty, and start learning!
                     </p>
@@ -55,14 +55,14 @@ const AboutSection = () => {
                             >
                                 <GlassCard className="p-6 h-full" hover>
                                     <div className="flex items-start gap-4">
-                                        <div className="p-3 rounded-xl bg-gradient-to-br from-cyan-500 to-blue-600 flex-shrink-0">
+                                        <div className="p-3 rounded-xl bg-gradient-to-br from-accent to-accent-secondary flex-shrink-0 text-white">
                                             {feature.icon}
                                         </div>
                                         <div>
-                                            <h3 className="text-xl font-bold text-white mb-2">
+                                            <h3 className="text-xl font-bold text-text mb-2">
                                                 {feature.title}
                                             </h3>
-                                            <p className="text-white/70">
+                                            <p className="text-text-secondary">
                                                 {feature.description}
                                             </p>
                                         </div>
@@ -74,7 +74,7 @@ const AboutSection = () => {
 
                     {/* How it works steps */}
                     <GlassCard className="p-8">
-                        <h3 className="text-2xl font-bold text-white mb-6 text-center">
+                        <h3 className="text-2xl font-bold text-text mb-6 text-center">
                             Get Started in 3 Simple Steps
                         </h3>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -91,11 +91,11 @@ const AboutSection = () => {
                                     viewport={{ once: true }}
                                     transition={{ delay: index * 0.2, duration: 0.5 }}
                                 >
-                                    <div className="w-16 h-16 rounded-full bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center text-2xl font-bold mx-auto mb-4">
+                                    <div className="w-16 h-16 rounded-full bg-gradient-to-br from-accent to-accent-secondary flex items-center justify-center text-2xl font-bold text-white mx-auto mb-4">
                                         {item.step}
                                     </div>
-                                    <h4 className="text-lg font-bold text-white mb-2">{item.title}</h4>
-                                    <p className="text-white/60 text-sm">{item.desc}</p>
+                                    <h4 className="text-lg font-bold text-text mb-2">{item.title}</h4>
+                                    <p className="text-text-secondary text-sm">{item.desc}</p>
                                 </motion.div>
                             ))}
                         </div>

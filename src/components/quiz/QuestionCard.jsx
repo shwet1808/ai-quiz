@@ -47,36 +47,36 @@ const QuestionCard = ({ question, onAnswer, onSkip }) => {
 
     const getOptionClass = (index) => {
         if (!isAnswered) {
-            return 'border-white/20 bg-white/5 hover:border-white/40 hover:bg-white/10 cursor-pointer';
+            return 'border-border bg-background-secondary hover:border-accent hover:bg-background-tertiary cursor-pointer text-text';
         }
 
         if (index === question.correctAnswer) {
-            return 'border-green-400 bg-green-400/20';
+            return 'border-status-success bg-status-success/20';
         }
 
         if (index === selectedAnswer && index !== question.correctAnswer) {
-            return 'border-red-400 bg-red-400/20';
+            return 'border-status-error bg-status-error/20';
         }
 
-        return 'border-white/10 bg-white/5 opacity-50';
+        return 'border-border bg-background-secondary opacity-50';
     };
 
     const getOptionIcon = (index) => {
         if (!isAnswered) return null;
 
         if (index === question.correctAnswer) {
-            return <Check className="w-6 h-6 text-green-400" />;
+            return <Check className="w-6 h-6 text-status-success" />;
         }
 
         if (index === selectedAnswer && index !== question.correctAnswer) {
-            return <X className="w-6 h-6 text-red-400" />;
+            return <X className="w-6 h-6 text-status-error" />;
         }
 
         return null;
     };
 
     return (
-        <div className="max-w-4xl mx-auto px-4 py-8">
+        <div className="max-w-5xl mx-auto px-4 w-full">
             <AnimatePresence mode="wait">
                 <motion.div
                     key={question.id}
@@ -86,8 +86,8 @@ const QuestionCard = ({ question, onAnswer, onSkip }) => {
                     transition={{ duration: 0.3 }}
                 >
                     {/* Question */}
-                    <GlassCard className="p-6 sm:p-8 mb-8">
-                        <h2 className="text-2xl md:text-3xl font-bold text-white text-center mb-4">
+                    <GlassCard className="px-6 py-4 mb-4">
+                        <h2 className="text-xl md:text-2xl font-bold text-text text-center mb-4 leading-tight">
                             {question.question}
                         </h2>
 
@@ -96,13 +96,13 @@ const QuestionCard = ({ question, onAnswer, onSkip }) => {
                             <motion.div
                                 initial={{ opacity: 0, scale: 0.95 }}
                                 animate={{ opacity: 1, scale: 1 }}
-                                className="mt-6"
+                                className="mt-4"
                             >
-                                <div className="relative w-full max-w-2xl mx-auto rounded-xl overflow-hidden border border-white/20">
+                                <div className="relative w-full max-w-xl mx-auto rounded-xl overflow-hidden border border-border">
                                     <img
                                         src={question.imageUrl}
                                         alt="Question context"
-                                        className="w-full h-auto max-h-96 object-contain bg-white/5"
+                                        className="w-full h-auto max-h-56 md:max-h-72 object-contain bg-background-secondary"
                                         loading="lazy"
                                     />
                                 </div>
@@ -111,33 +111,33 @@ const QuestionCard = ({ question, onAnswer, onSkip }) => {
                     </GlassCard>
 
                     {/* Options */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-6">
                         {question.options.map((option, index) => (
                             <motion.button
                                 key={index}
                                 onClick={() => handleAnswerClick(index)}
                                 disabled={isAnswered}
                                 className={`
-                                    p-4 sm:p-6 rounded-xl border-2 transition-all duration-300 text-left
-                                    flex items-center justify-between gap-4
+                                    p-3 rounded-xl border-2 transition-all duration-300 text-left
+                                    flex items-center justify-between gap-3
                                     ${getOptionClass(index)}
                                 `}
-                                whileHover={!isAnswered ? { scale: 1.02 } : {}}
-                                whileTap={!isAnswered ? { scale: 0.98 } : {}}
+                                whileHover={!isAnswered ? { scale: 1.01 } : {}}
+                                whileTap={!isAnswered ? { scale: 0.99 } : {}}
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ delay: index * 0.1 }}
                             >
-                                <div className="flex items-center gap-3 sm:gap-4 flex-1 min-w-0">
+                                <div className="flex items-center gap-3 flex-1 min-w-0">
                                     <div className={`
-                                        w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center font-bold text-base sm:text-lg flex-shrink-0
-                                        ${isAnswered && index === question.correctAnswer ? 'bg-green-400 text-white' : ''}
-                                        ${isAnswered && index === selectedAnswer && index !== question.correctAnswer ? 'bg-red-400 text-white' : ''}
-                                        ${!isAnswered ? 'bg-white/10 text-white' : ''}
+                                        w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm sm:text-base flex-shrink-0
+                                        ${isAnswered && index === question.correctAnswer ? 'bg-status-success text-white' : ''}
+                                        ${isAnswered && index === selectedAnswer && index !== question.correctAnswer ? 'bg-status-error text-white' : ''}
+                                        ${!isAnswered ? 'bg-background-tertiary text-text' : ''}
                                     `}>
                                         {String.fromCharCode(65 + index)}
                                     </div>
-                                    <span className="text-white font-medium text-base sm:text-lg break-words">{option}</span>
+                                    <span className={`font-medium text-sm sm:text-base break-words leading-snug ${isAnswered ? 'text-text' : ''}`}>{option}</span>
                                 </div>
                                 <div className="flex-shrink-0">
                                     {getOptionIcon(index)}
@@ -159,15 +159,15 @@ const QuestionCard = ({ question, onAnswer, onSkip }) => {
                                     <div className="flex items-start gap-3">
                                         <div className={`
                                             p-2 rounded-lg flex-shrink-0
-                                            ${selectedAnswer === question.correctAnswer ? 'bg-green-400/20' : 'bg-blue-400/20'}
+                                            ${selectedAnswer === question.correctAnswer ? 'bg-status-success/20' : 'bg-status-warning/20'}
                                         `}>
                                             {selectedAnswer === question.correctAnswer ? '✅' : 'ℹ️'}
                                         </div>
                                         <div>
-                                            <h3 className="font-bold text-white mb-2">
+                                            <h3 className="font-bold text-text mb-2">
                                                 {selectedAnswer === question.correctAnswer ? 'Correct!' : 'Explanation'}
                                             </h3>
-                                            <p className="text-white/80">{question.explanation}</p>
+                                            <p className="text-text-secondary">{question.explanation}</p>
                                         </div>
                                     </div>
                                 </GlassCard>

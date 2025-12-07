@@ -23,7 +23,7 @@ const HeroSection = ({ onGetStarted }) => {
                     </motion.h1>
 
                     <motion.p
-                        className="text-xl md:text-2xl text-white/80 mb-8 max-w-2xl mx-auto"
+                        className="text-xl md:text-2xl text-text-secondary mb-8 max-w-2xl mx-auto"
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         transition={{ delay: 0.3, duration: 0.8 }}
@@ -61,11 +61,11 @@ const HeroSection = ({ onGetStarted }) => {
                         ].map((stat, index) => (
                             <motion.div
                                 key={stat.label}
-                                className="backdrop-blur-xl bg-white/10 border border-white/20 rounded-xl p-6"
-                                whileHover={{ scale: 1.05, borderColor: 'rgba(6, 182, 212, 0.5)' }}
+                                className="glass-card p-6"
+                                whileHover={{ scale: 1.05, borderColor: 'rgba(var(--accent-primary) / 0.5)' }}
                             >
-                                <div className="text-3xl font-bold text-cyan-400 mb-2">{stat.value}</div>
-                                <div className="text-white/70">{stat.label}</div>
+                                <div className="text-3xl font-bold text-accent mb-2">{stat.value}</div>
+                                <div className="text-text-secondary">{stat.label}</div>
                             </motion.div>
                         ))}
                     </motion.div>

@@ -55,7 +55,7 @@ const SuggestedQuizzes = ({ onQuizSelect }) => {
                     <h2 className="text-3xl md:text-4xl font-bold text-center mb-4 gradient-text">
                         Trending Quizzes
                     </h2>
-                    <p className="text-center text-white/70 mb-12">
+                    <p className="text-center text-text-secondary mb-12">
                         Click on any quiz to auto-fill the form above
                     </p>
 
@@ -73,27 +73,27 @@ const SuggestedQuizzes = ({ onQuizSelect }) => {
                                     onClick={() => onQuizSelect(quiz.topic, quiz.difficulty)}
                                     className="p-6 h-full"
                                 >
-                                    <div className={`w-16 h-16 rounded-xl bg-gradient-to-br ${quiz.color} flex items-center justify-center mb-4`}>
+                                    <div className={`w-16 h-16 rounded-xl bg-gradient-to-br ${quiz.color} flex items-center justify-center mb-4 text-white`}>
                                         {quiz.icon}
                                     </div>
 
-                                    <h3 className="text-xl font-bold text-white mb-2">
+                                    <h3 className="text-xl font-bold text-text mb-2">
                                         {quiz.title}
                                     </h3>
 
-                                    <p className="text-white/60 text-sm mb-4">
+                                    <p className="text-text-secondary text-sm mb-4">
                                         {quiz.description}
                                     </p>
 
                                     <div className="flex items-center gap-2">
-                                        <span className="px-3 py-1 rounded-full bg-white/10 text-xs font-medium text-white">
+                                        <span className="px-3 py-1 rounded-full bg-background-tertiary text-xs font-medium text-text-secondary border border-border">
                                             {quiz.topic}
                                         </span>
                                         <span className={`
-                      px-3 py-1 rounded-full text-xs font-medium
-                      ${quiz.difficulty === 'Easy' ? 'bg-green-500/20 text-green-400' : ''}
-                      ${quiz.difficulty === 'Medium' ? 'bg-yellow-500/20 text-yellow-400' : ''}
-                      ${quiz.difficulty === 'Hard' ? 'bg-red-500/20 text-red-400' : ''}
+                      px-3 py-1 rounded-full text-xs font-medium border
+                      ${quiz.difficulty === 'Easy' ? 'bg-status-success/10 text-status-success border-status-success/20' : ''}
+                      ${quiz.difficulty === 'Medium' ? 'bg-status-warning/10 text-status-warning border-status-warning/20' : ''}
+                      ${quiz.difficulty === 'Hard' ? 'bg-status-error/10 text-status-error border-status-error/20' : ''}
                     `}>
                                             {quiz.difficulty}
                                         </span>

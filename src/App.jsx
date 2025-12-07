@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { AnimatePresence } from 'framer-motion';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { ThemeProvider } from './context/ThemeContext';
 
 import { QuizProvider } from './context/QuizContext';
 import { AudioProvider } from './context/AudioContext';
@@ -16,36 +17,38 @@ import Profile from './pages/Profile';
 function App() {
     return (
         <BrowserRouter>
-            <AudioProvider>
-                <QuizProvider>
-                    <AnimatePresence mode="wait">
-                        <Routes>
-                            <Route path="/" element={<Layout />}>
-                                <Route index element={<Home />} />
-                                <Route path="quiz" element={<Quiz />} />
-                                <Route path="result" element={<Result />} />
-                                <Route path="leaderboard" element={<Leaderboard />} />
-                                <Route path="profile" element={<Profile />} />
-                            </Route>
-                        </Routes>
-                    </AnimatePresence>
+            <ThemeProvider>
+                <AudioProvider>
+                    <QuizProvider>
+                        <AnimatePresence mode="wait">
+                            <Routes>
+                                <Route path="/" element={<Layout />}>
+                                    <Route index element={<Home />} />
+                                    <Route path="quiz" element={<Quiz />} />
+                                    <Route path="result" element={<Result />} />
+                                    <Route path="leaderboard" element={<Leaderboard />} />
+                                    <Route path="profile" element={<Profile />} />
+                                </Route>
+                            </Routes>
+                        </AnimatePresence>
 
-                    {/* Toast Notifications */}
-                    <ToastContainer
-                        position="top-right"
-                        autoClose={3000}
-                        hideProgressBar={false}
-                        newestOnTop
-                        closeOnClick
-                        rtl={false}
-                        pauseOnFocusLoss
-                        draggable
-                        pauseOnHover
-                        theme="dark"
-                        toastClassName="backdrop-blur-xl bg-slate-800/90 border border-white/10"
-                    />
-                </QuizProvider>
-            </AudioProvider>
+                        {/* Toast Notifications */}
+                        <ToastContainer
+                            position="top-right"
+                            autoClose={3000}
+                            hideProgressBar={false}
+                            newestOnTop
+                            closeOnClick
+                            rtl={false}
+                            pauseOnFocusLoss
+                            draggable
+                            pauseOnHover
+                            theme="colored"
+                            toastClassName="backdrop-blur-xl bg-background-secondary border border-border text-text"
+                        />
+                    </QuizProvider>
+                </AudioProvider>
+            </ThemeProvider>
         </BrowserRouter>
     );
 }

@@ -138,6 +138,47 @@ app.post('/api/upload/pdf', upload.single('file'), async (req, res) => {
     }
 });
 
+// Custom topic quiz generation endpoint
+app.post('/api/generate/topic', async (req, res) => {
+    try {
+        const { topic, difficulty = 'Medium', questionCount = 10 } = req.body;
+
+        if (!topic || topic.trim() === '') {
+            return res.status(400).json({ error: 'Topic is required' });
+        }
+
+        console.log(`Generating quiz for topic: "${topic}"...`);
+
+        // Use the specialized topic generation method
+        const quizData = await geminiService.generateQuizFromTopic(
+            topic,
+            difficulty,
+            parseInt(questionCount)
+        );
+
+        console.log(`Generated ${quizData.questions.length} questions for topic "${topic}"`);
+
+        res.json({
+            success: true,
+            quiz: quizData,
+            metadata: {
+                source: 'topic',
+                topic: topic,
+                generatedAt: new Date().toISOString(),
+                difficulty,
+                questionCount: quizData.questions.length
+            }
+        });
+
+    } catch (error) {
+        console.error('Topic quiz generation error:', error);
+        res.status(500).json({
+            error: 'Failed to generate quiz from topic',
+            message: error.message
+        });
+    }
+});
+
 // Image upload and quiz generation endpoint
 app.post('/api/upload/image', upload.single('file'), async (req, res) => {
     try {
