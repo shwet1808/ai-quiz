@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 AI Quiz Generator
 A production-ready, highly aesthetic AI Quiz Generator web application built with React, Vite, and Tailwind CSS featuring a stunning "Cosmic Glassmorphism" theme.
 
@@ -140,3 +141,85 @@ Built with modern React best practices
 Designed with accessibility in mind
 Optimized for performance and user experience
 Enjoy the quiz! 🚀✨
+=======
+# AI Quiz Generator - Backend Server
+
+# ai-quiz
+
+Lightweight AI-powered quiz application — generate, take, and review quizzes.
+
+This repository contains a React frontend and a Node.js backend that work together
+to provide audio-enabled, time-limited quizzes generated using AI prompts.
+
+**Quick highlights**
+
+- Generate quizzes dynamically using configurable prompts.
+- Audio playback and recording utilities for spoken quizzes.
+- Lightweight backend to serve AI model prompts and quiz data.
+
+**Repository layout**
+
+- `ai-quiz-backend/` — Node.js backend (API + prompt services)
+- `client/` — Vite + React frontend (UI, audio handling, quiz flow)
+
+Getting started (local)
+
+Prerequisites
+
+- Node.js 16+ and npm installed
+- (Optional) Git and a GitHub account for pushing changes
+
+Run the backend
+
+1. Open a terminal and go to the backend folder:
+
+   ```pwsh
+   cd ai-quiz-backend
+   npm install
+   node index.js
+   ```
+
+Run the frontend (dev)
+
+1. In a separate terminal, start the client:
+
+   ```pwsh
+   cd client
+   npm install
+   npm run dev
+   ```
+
+Build for production (frontend)
+
+```pwsh
+cd client
+npm run build
+```
+
+Deployment
+
+- The project includes `vercel.json` for painless deployment to Vercel. Push the repo
+  to a Git provider and connect it to Vercel, or use any static-hosting + Node backend setup.
+
+Notes & development
+
+- Backend AI prompt code lives in `ai-quiz-backend/prompts` and model helpers in
+  `ai-quiz-backend/services`.
+- Frontend components are under `client/src/components` with contexts in
+  `client/src/context` and utilities under `client/src/utils`.
+
+Contributing
+
+- Open an issue to propose changes or fixes.
+- Send a PR with a clear description and a small, focused set of changes.
+
+License
+
+This repository does not contain a license file. Add one (e.g., `MIT`) if you plan
+to make the project public under a specific license.
+
+If you want, I can also:
+
+- run the project locally and verify the dev servers start, or
+- create a short `CONTRIBUTING.md` and add a license file.
+>>>>>>> baa2c03 (docs: improve README)
