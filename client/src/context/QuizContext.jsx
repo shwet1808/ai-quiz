@@ -1,6 +1,10 @@
 import React, { createContext, useContext, useState, useCallback } from 'react';
 import { getQuestions } from '../data/mockQuestions';
+import { generateQuizFromTopic, loginUser, submitQuiz as submitQuizResult } from '../services/apiService';
 
+// The QuizContext is like a global brain for the quiz app. 
+// It remembers things like: What question are we on? What is the user's score? 
+// This way, we don't have to pass this information down through every single component.
 const QuizContext = createContext();
 
 // Helper function to shuffle array
@@ -30,11 +34,14 @@ export const useQuiz = () => {
 };
 
 export const QuizProvider = ({ children }) => {
-    // User information
-    const [user, setUser] = useState({
-        name: '',
-        avatar: '🎮',
-        totalScore: 0
+    // User information is restored from localStorage so profile links survive page refreshes.
+    const [user, setUser] = useState(() => {
+        const savedUser = localStorage.getItem('aiQuizUser');
+        return savedUser ? JSON.parse(savedUser) : {
+            name: '',
+            avatar: '🎮',
+            totalScore: 0
+        };
     });
 
     // Quiz configuration
@@ -51,53 +58,82 @@ export const QuizProvider = ({ children }) => {
     const [quizStarted, setQuizStarted] = useState(false);
     const [quizCompleted, setQuizCompleted] = useState(false);
     const [score, setScore] = useState(0);
+    const [quizError, setQuizError] = useState('');
+    const [isLoadingQuiz, setIsLoadingQuiz] = useState(false);
 
-    // Start quiz with mock data
-    const startQuiz = useCallback((userName, topic, difficulty, inputMode = 'text') => {
-        // Set user info
-        setUser({
-            name: userName,
-            avatar: getAvatarByScore(0),
-            totalScore: 0
-        });
-
-        // Set quiz configuration
-        setQuizConfig({ topic, difficulty, inputMode });
-
-        // Get questions based on topic and difficulty
-        const quizQuestions = getQuestions(topic, difficulty);
-
-        // Shuffle and select 10 questions
-        const shuffledQuestions = shuffleArray([...quizQuestions]).slice(0, 10);
-
-        setQuestions(shuffledQuestions);
-        setCurrentQuestionIndex(0);
-        setAnswers(new Array(10).fill(-1));
-        setQuizStarted(true);
-        setQuizCompleted(false);
-        setScore(0);
+    // Keep React state and browser storage aligned whenever backend user data changes.
+    const saveUser = useCallback((nextUser) => {
+        setUser(nextUser);
+        localStorage.setItem('aiQuizUser', JSON.stringify(nextUser));
     }, []);
 
-    // Load quiz from AI-generated data
-    const loadQuizFromAPI = useCallback((userName, quizData, topic, difficulty) => {
-        // Set user info
-        setUser({
-            name: userName,
-            avatar: getAvatarByScore(0),
-            totalScore: 0
-        });
+    const startQuiz = useCallback(async (userName, topic, difficulty, inputMode = 'text', questionCount = 10) => {
+        try {
+            setIsLoadingQuiz(true);
+            setQuizError('');
+            
+            const login = await loginUser(userName);
+            saveUser(login.user);
 
-        // Set quiz configuration
-        setQuizConfig({ topic, difficulty, inputMode: 'file' });
+            // Set quiz configuration
+            setQuizConfig({ topic, difficulty, inputMode });
 
-        // Use AI-generated questions
-        setQuestions(quizData.questions);
-        setCurrentQuestionIndex(0);
-        setAnswers(new Array(quizData.questions.length).fill(-1));
-        setQuizStarted(true);
-        setQuizCompleted(false);
-        setScore(0);
-    }, []);
+            // Always call API - no fallback to hardcoded questions
+            const result = await generateQuizFromTopic(topic, difficulty, questionCount, userName);
+            const apiQuestions = result.quiz?.questions || [];
+            
+            if (!apiQuestions || apiQuestions.length === 0) {
+                throw new Error('No questions generated from API. Please try again.');
+            }
+
+            setQuestions(apiQuestions);
+            setCurrentQuestionIndex(0);
+            setAnswers(new Array(apiQuestions.length).fill(-1));
+            setQuizStarted(true);
+            setQuizCompleted(false);
+            setScore(0);
+            setIsLoadingQuiz(false);
+            return result.quiz;
+        } catch (error) {
+            setIsLoadingQuiz(false);
+            const errorMessage = error.message || 'Failed to generate quiz. Please check your connection and try again.';
+            setQuizError(errorMessage);
+            throw error;
+        }
+    }, [saveUser]);
+
+    // Load a generated quiz into the exact state shape expected by the quiz screen.
+    const loadQuizFromAPI = useCallback(async (userName, quizData, topic, difficulty) => {
+        try {
+            setIsLoadingQuiz(true);
+            setQuizError('');
+            
+            const login = await loginUser(userName);
+            saveUser(login.user);
+
+            // Set quiz configuration
+            setQuizConfig({ topic, difficulty, inputMode: 'file' });
+
+            // Validate quiz data
+            if (!quizData.questions || quizData.questions.length === 0) {
+                throw new Error('Invalid quiz data. No questions found.');
+            }
+
+            // Use AI-generated questions
+            setQuestions(quizData.questions);
+            setCurrentQuestionIndex(0);
+            setAnswers(new Array(quizData.questions.length).fill(-1));
+            setQuizStarted(true);
+            setQuizCompleted(false);
+            setScore(0);
+            setIsLoadingQuiz(false);
+        } catch (error) {
+            setIsLoadingQuiz(false);
+            const errorMessage = error.message || 'Failed to load quiz. Please try again.';
+            setQuizError(errorMessage);
+            throw error;
+        }
+    }, [saveUser]);
 
     // Submit answer
     const submitAnswer = useCallback((answerIndex) => {
@@ -125,9 +161,27 @@ export const QuizProvider = ({ children }) => {
         } else {
             // Quiz completed
             setQuizCompleted(true);
-            setUser(prev => ({ ...prev, totalScore: prev.totalScore + score }));
         }
-    }, [currentQuestionIndex, questions.length, score]);
+    }, [currentQuestionIndex, questions.length]);
+
+    const submitQuiz = useCallback(async () => {
+        // The backend recalculates score from questions and answers, so the browser never owns scoring truth.
+        const result = await submitQuizResult({
+            name: user.name,
+            topic: quizConfig.topic,
+            difficulty: quizConfig.difficulty,
+            questions,
+            answers
+        });
+
+        const nextUser = {
+            ...user,
+            totalScore: (user.totalScore || 0) + result.attempt.score,
+            avatar: getAvatarByScore(result.attempt.score)
+        };
+        saveUser(nextUser);
+        return result.attempt;
+    }, [answers, questions, quizConfig, saveUser, user]);
 
     // Reset quiz
     const resetQuiz = useCallback(() => {
@@ -165,11 +219,15 @@ export const QuizProvider = ({ children }) => {
         quizStarted,
         quizCompleted,
         score,
+        quizError,
+        setQuizError,
+        isLoadingQuiz,
         startQuiz,
         loadQuizFromAPI,
         submitAnswer,
         skipQuestion,
         nextQuestion,
+        submitQuiz,
         resetQuiz,
         getCurrentQuestion,
         getProgress

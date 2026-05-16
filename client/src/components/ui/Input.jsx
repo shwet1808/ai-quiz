@@ -30,6 +30,9 @@ const Input = forwardRef(({
           ${error ? 'border-status-error focus:border-status-error focus:ring-status-error/30' : ''}
           ${className}
         `}
+                style={{
+                    color: 'rgb(var(--text-primary))'
+                }}
                 {...props}
             />
             {error && (

@@ -8,6 +8,8 @@ import CountdownOverlay from '../components/quiz/CountdownOverlay';
 import QuizHeader from '../components/quiz/QuizHeader';
 import QuestionCard from '../components/quiz/QuestionCard';
 
+// This is the main "Quiz" screen where the user actually answers questions!
+// It handles the timer, shows the current question, and moves to the next one when answered.
 const Quiz = () => {
     const navigate = useNavigate();
     const {
@@ -68,9 +70,10 @@ const Quiz = () => {
 
     // Handle answer submission
     const handleAnswer = (answerIndex, autoAdvance = false) => {
-        if (autoAdvance) {
+        if (!autoAdvance) {
+            // Register score immediately to eliminate lag
             submitAnswer(answerIndex);
-
+        } else {
             // Check if quiz is complete
             if (currentQuestionIndex === questions.length - 1) {
                 // Quiz completed

@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Upload, FileText, ChevronDown, X, CheckCircle } from 'lucide-react';
+import { Upload, FileText, ChevronDown, X, CheckCircle, AlertCircle } from 'lucide-react';
 import { toast } from 'react-toastify';
 import { useQuiz } from '../../context/QuizContext';
-import { uploadPDF, uploadImage } from '../../services/apiService';
+import { generateQuizFromTopic, uploadPDF, uploadImage } from '../../services/apiService';
 import Input from '../ui/Input';
 import Button from '../ui/Button';
 import GlassCard from '../ui/GlassCard';
@@ -13,7 +13,7 @@ import { getTopics, getDifficulties } from '../../data/mockQuestions';
 
 const UserSetupForm = () => {
     const navigate = useNavigate();
-    const { startQuiz, loadQuizFromAPI } = useQuiz();
+    const { loadQuizFromAPI, quizError } = useQuiz();
 
     const [formData, setFormData] = useState({
         name: '',
@@ -28,6 +28,7 @@ const UserSetupForm = () => {
     const [uploading, setUploading] = useState(false);
     const [uploadedFile, setUploadedFile] = useState(null);
     const [processingStatus, setProcessingStatus] = useState('');
+    const [apiError, setApiError] = useState('');
 
     const topics = getTopics();
     const difficulties = getDifficulties();
@@ -143,6 +144,7 @@ const UserSetupForm = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setApiError('');
 
         if (!validate()) {
             return;
@@ -150,72 +152,33 @@ const UserSetupForm = () => {
 
         // Text mode
         if (formData.inputMode === 'text') {
-            // Check if it's a standard mock topic
-            const isMockTopic = topics.includes(formData.topic);
+            setUploading(true);
+            setProcessingStatus(`Generating ${formData.questionCount} questions for "${formData.topic}"...`);
 
-            if (isMockTopic) {
-                // Use built-in mock questions
-                startQuiz(formData.name, formData.topic, formData.difficulty, 'text');
-                navigate('/quiz');
-                return;
-            } else {
-                // Custom topic - Use AI Generation
-                setUploading(true);
-                setProcessingStatus(`Generating questions for "${formData.topic}"...`);
+            try {
+                const result = await generateQuizFromTopic(
+                    formData.topic,
+                    formData.difficulty,
+                    formData.questionCount,
+                    formData.name
+                );
 
-                try {
-                    // Reuse the gemini service via the same API endpoint used for text uploads
-                    // We'll create a synthetic "file" or just call a new method if we had one.
-                    // Ideally we should have a clearer API for this. 
-                    // For now, let's treat it as a text-based generation request.
-                    // Since we don't have a direct "generate from topic" endpoint exposed in this component's imports yet,
-                    // we might need to modify apiService.js or assume a new endpoint.
-
-                    // Actually, we can reuse the uploadPDF logic but modify the backend? 
-                    // No, cleaner to add a specific handler.
-                    // For now, let's create a temporary text file with the topic prompt and upload it? 
-                    // That's a hack.
-                    // Better approach: Let's assume the backend 'uploadPDF' endpoint can also accept raw text or we add a new one.
-
-                    // LET'S EDIT: We will call a new function `generateQuizFromTopic` which we will implement effectively by 
-                    // calling the backend with a text payload.
-                    // Since we don't have that yet, let's use a workaround:
-                    // We will create a simple text file "topic.txt" containing the topic request and upload it as a "text" file
-                    // if the backend supports it. The backend currently supports PDF.
-
-                    // WAITING: I should probably update apiService.js first to support custom topic generation properly.
-                    // But for this step, I'll implement the UI logic to call a function I will add next.
-
-                    const { generateQuizFromTopic } = await import('../../services/apiService');
-
-                    const result = await generateQuizFromTopic(
-                        formData.topic,
-                        formData.difficulty,
-                        formData.questionCount
-                    );
-
-                    if (result.success) {
-                        setProcessingStatus('Quiz generated successfully!');
-                        toast.success(`Generated ${result.quiz.questions.length} questions for ${formData.topic}!`);
-
-                        loadQuizFromAPI(
-                            formData.name,
-                            result.quiz,
-                            formData.topic,
-                            formData.difficulty
-                        );
-
-                        setTimeout(() => navigate('/quiz'), 500);
-                    }
-                } catch (error) {
-                    console.error('Generation error:', error);
-                    toast.error(error.message || 'Failed to generate quiz.');
-                    setProcessingStatus('');
-                } finally {
-                    setUploading(false);
+                if (result.success) {
+                    setProcessingStatus('Quiz generated successfully!');
+                    toast.success(`Generated ${result.quiz.questions.length} questions for ${formData.topic}!`);
+                    await loadQuizFromAPI(formData.name, result.quiz, formData.topic, formData.difficulty);
+                    setTimeout(() => navigate('/quiz'), 500);
                 }
-                return;
+            } catch (error) {
+                console.error('Generation error:', error);
+                const errorMsg = error.message || 'Failed to generate quiz. Please check your connection and try again.';
+                setApiError(errorMsg);
+                toast.error(errorMsg);
+                setProcessingStatus('');
+            } finally {
+                setUploading(false);
             }
+            return;
         }
 
         // File mode - use AI generation
@@ -242,7 +205,7 @@ const UserSetupForm = () => {
                 toast.success(`Generated ${result.quiz.questions.length} questions!`);
 
                 // Load quiz from API
-                loadQuizFromAPI(
+                await loadQuizFromAPI(
                     formData.name,
                     result.quiz,
                     result.quiz.questions[0]?.topic || 'AI Generated',
@@ -256,7 +219,9 @@ const UserSetupForm = () => {
             }
         } catch (error) {
             console.error('Upload error:', error);
-            toast.error(error.message || 'Failed to generate quiz. Please try again.');
+            const errorMsg = error.message || 'Failed to generate quiz. Please try again.';
+            setApiError(errorMsg);
+            toast.error(errorMsg);
             setProcessingStatus('');
         } finally {
             setUploading(false);
@@ -271,21 +236,47 @@ const UserSetupForm = () => {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.6 }}
                 >
-                    <h2 className="text-3xl md:text-4xl font-bold text-center mb-4 gradient-text">
-                        Start Your Quiz
+                    <h2 className="text-3xl md:text-4xl font-bold text-center mb-4 text-text">
+                        Create a focused quiz
                     </h2>
                     <p className="text-center text-text-secondary mb-8">
-                        Fill in your details and choose your preferences
+                        Pick your topic, level, and question count. OpenAI is used when configured; otherwise the backend generates locally.
                     </p>
 
-                    <GlassCard className="p-6 sm:p-8">
+                    <GlassCard className="p-5 sm:p-7">
                         {uploading ? (
                             <LoadingSpinner
                                 message="Generating Quiz with AI"
                                 subMessage={processingStatus}
                             />
                         ) : (
-                            <form onSubmit={handleSubmit} className="space-y-6">
+                            <>
+                                {/* Error Alert */}
+                                <AnimatePresence>
+                                    {apiError && (
+                                        <motion.div
+                                            initial={{ opacity: 0, height: 0 }}
+                                            animate={{ opacity: 1, height: 'auto' }}
+                                            exit={{ opacity: 0, height: 0 }}
+                                            className="mb-6 overflow-hidden"
+                                        >
+                                            <div className="p-4 rounded-lg bg-status-error/10 border border-status-error/50 flex items-start gap-3">
+                                                <AlertCircle className="w-5 h-5 text-status-error flex-shrink-0 mt-0.5" />
+                                                <div className="flex-1">
+                                                    <h3 className="font-semibold text-status-error mb-1">Generation Failed</h3>
+                                                    <p className="text-sm text-status-error/90">{apiError}</p>
+                                                    <button
+                                                        onClick={() => setApiError('')}
+                                                        className="mt-2 text-xs font-medium text-status-error hover:underline"
+                                                    >
+                                                        Dismiss
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </motion.div>
+                                    )}
+                                </AnimatePresence>
+                                <form onSubmit={handleSubmit} className="space-y-6">
                                 {/* Name Input */}
                                 <Input
                                     label="Your Name"
@@ -302,7 +293,7 @@ const UserSetupForm = () => {
                                     <label className="block text-sm font-medium text-text-secondary mb-3">
                                         Input Mode
                                     </label>
-                                    <div className="grid grid-cols-2 gap-4">
+                                    <div className="grid grid-cols-2 gap-3 rounded-lg border border-border bg-background-tertiary p-1">
                                         <motion.button
                                             type="button"
                                             onClick={() => {
@@ -310,10 +301,10 @@ const UserSetupForm = () => {
                                                 setUploadedFile(null);
                                             }}
                                             className={`
-                                                p-4 rounded-xl border-2 transition-all duration-300 flex items-center justify-center gap-2
+                                                p-3 rounded-md border transition-all duration-300 flex items-center justify-center gap-2
                                                 ${formData.inputMode === 'text'
-                                                    ? 'border-accent bg-accent/20 text-accent'
-                                                    : 'border-border bg-background-tertiary text-text-secondary hover:border-accent/50 hover:text-text'
+                                                    ? 'border-accent bg-background-secondary text-accent shadow-soft'
+                                                    : 'border-transparent text-text-secondary hover:bg-background-secondary hover:text-text'
                                                 }
                                             `}
                                             whileHover={{ scale: 1.02 }}
@@ -327,10 +318,10 @@ const UserSetupForm = () => {
                                             type="button"
                                             onClick={() => setFormData(prev => ({ ...prev, inputMode: 'file' }))}
                                             className={`
-                                                p-4 rounded-xl border-2 transition-all duration-300 flex items-center justify-center gap-2
+                                                p-3 rounded-md border transition-all duration-300 flex items-center justify-center gap-2
                                                 ${formData.inputMode === 'file'
-                                                    ? 'border-accent bg-accent/20 text-accent'
-                                                    : 'border-border bg-background-tertiary text-text-secondary hover:border-accent/50 hover:text-text'
+                                                    ? 'border-accent bg-background-secondary text-accent shadow-soft'
+                                                    : 'border-transparent text-text-secondary hover:bg-background-secondary hover:text-text'
                                                 }
                                             `}
                                             whileHover={{ scale: 1.02 }}
@@ -362,7 +353,7 @@ const UserSetupForm = () => {
                                                             setFormData(prev => ({ ...prev, topic: value }));
                                                         }
                                                     }}
-                                                    className="w-full px-4 py-3 rounded-xl input-field appearance-none cursor-pointer"
+                                                    className="w-full px-4 py-3 rounded-lg input-field appearance-none cursor-pointer"
                                                 >
                                                     <option value="" className="bg-background-secondary text-text" disabled>Select a topic...</option>
                                                     {topics.map(topic => (
@@ -406,6 +397,33 @@ const UserSetupForm = () => {
                                     </>
                                 )}
 
+                                {/* Question Count */}
+                                <div>
+                                    <label className="block text-sm font-medium text-text-secondary mb-3">
+                                        Number of Questions
+                                    </label>
+                                    <div className="grid grid-cols-4 gap-2 rounded-lg border border-border bg-background-tertiary p-1 sm:gap-3">
+                                        {[5, 10, 15, 20].map((count) => (
+                                            <motion.button
+                                                key={count}
+                                                type="button"
+                                                onClick={() => setFormData(prev => ({ ...prev, questionCount: count }))}
+                                                className={`
+                                                    h-11 rounded-md border font-bold transition-all duration-300
+                                                    ${formData.questionCount === count
+                                                        ? 'border-accent bg-background-secondary text-accent shadow-soft'
+                                                        : 'border-transparent text-text-secondary hover:bg-background-secondary hover:text-text'
+                                                    }
+                                                `}
+                                                whileHover={{ scale: 1.03 }}
+                                                whileTap={{ scale: 0.97 }}
+                                            >
+                                                {count}
+                                            </motion.button>
+                                        ))}
+                                    </div>
+                                </div>
+
                                 {/* File Upload Area (if file mode selected) */}
                                 <AnimatePresence>
                                     {formData.inputMode === 'file' && (
@@ -418,8 +436,8 @@ const UserSetupForm = () => {
                                             {!uploadedFile ? (
                                                 <div
                                                     className={`
-                                                        relative border-2 border-dashed rounded-xl p-6 sm:p-8 text-center transition-all duration-300
-                                                        ${dragActive ? 'border-accent bg-accent/10' : 'border-border bg-background-secondary'}
+                                                        relative border border-dashed rounded-lg p-6 sm:p-8 text-center transition-all duration-300
+                                                        ${dragActive ? 'border-accent bg-accent/10' : 'border-border bg-background-tertiary'}
                                                     `}
                                                     onDragEnter={handleDrag}
                                                     onDragLeave={handleDrag}
@@ -440,11 +458,11 @@ const UserSetupForm = () => {
                                                         Supports PDF, JPG, PNG, WebP (Max 10MB)
                                                     </p>
                                                     <p className="text-accent text-xs mt-2">
-                                                        ✨ AI will analyze your file and generate quiz questions
+                                                        The backend uses the file name as a topic seed unless parsing is added later.
                                                     </p>
                                                 </div>
                                             ) : (
-                                                <div className="p-4 rounded-xl bg-background-secondary border border-border">
+                                                <div className="p-4 rounded-lg bg-background-tertiary border border-border">
                                                     <div className="flex items-center justify-between">
                                                         <div className="flex items-center gap-3 flex-1 min-w-0">
                                                             <CheckCircle className="w-6 h-6 text-status-success flex-shrink-0" />
@@ -481,9 +499,9 @@ const UserSetupForm = () => {
                                                 type="button"
                                                 onClick={() => handleDifficultySelect(diff)}
                                                 className={`
-                                                    p-3 sm:p-4 rounded-xl border-2 transition-all duration-300
+                                                    p-3 sm:p-4 rounded-lg border transition-all duration-300
                                                     ${formData.difficulty === diff
-                                                        ? 'border-accent bg-accent/20'
+                                                        ? 'border-accent bg-accent/10 shadow-soft'
                                                         : 'border-border bg-background-tertiary hover:border-accent/30'
                                                     }
                                                 `}
@@ -516,10 +534,11 @@ const UserSetupForm = () => {
 
                                 {formData.inputMode === 'file' && (
                                     <p className="text-center text-text-muted text-sm">
-                                        🤖 Powered by Google Gemini AI
+                                        AI will use OpenAI when configured, otherwise a local mock generator.
                                     </p>
                                 )}
                             </form>
+                            </>
                         )}
                     </GlassCard>
                 </motion.div>

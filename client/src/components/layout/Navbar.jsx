@@ -53,14 +53,14 @@ const Navbar = () => {
 
     return (
         <motion.nav
-            className="fixed top-0 left-0 right-0 z-40 backdrop-blur-xl bg-background/90 border-b-2 border-border shadow-md"
+            className="fixed top-0 left-0 right-0 z-40 border-b border-border/70 bg-background-secondary/85 shadow-soft backdrop-blur-xl"
             initial={{ y: -100 }}
             animate={{ y: 0 }}
             transition={{ duration: 0.5 }}
         >
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex items-center justify-between h-16">
-                    {/* Logo */}
+                    {/* Brand button doubles as a reliable "return home" action from any route. */}
                     <button onClick={scrollToTop} className="flex items-center gap-2 group z-50 cursor-pointer">
                         <motion.div
                             whileHover={{ rotate: 180 }}
@@ -73,99 +73,92 @@ const Navbar = () => {
 
                     {/* Desktop Navigation Links */}
                     <div className="hidden md:flex items-center gap-6">
-                        {navLinks.map((link) => (
-                            link.type === 'link' ? (
-                                <Link
-                                    key={link.label}
-                                    to={link.path}
-                                    className="text-text-secondary hover:text-accent transition-colors font-medium"
-                                >
-                                    {link.label}
-                                </Link>
-                            ) : (
+                        {navLinks.map((link, index) => (
+                            link.type === 'button' ? (
                                 <button
-                                    key={link.label}
+                                    key={index}
                                     onClick={link.action}
-                                    className="text-text-secondary hover:text-accent transition-colors font-medium"
+                                    className="text-text-secondary hover:text-text transition-colors"
                                 >
                                     {link.label}
                                 </button>
+                            ) : (
+                                <Link
+                                    key={index}
+                                    to={link.path}
+                                    className="text-text-secondary hover:text-text transition-colors"
+                                >
+                                    {link.label}
+                                </Link>
                             )
                         ))}
                     </div>
 
-                    {/* Right side - User & Audio & Theme & Mobile Menu */}
-                    <div className="flex items-center gap-3">
+                    {/* Right side controls */}
+                    <div className="hidden md:flex items-center gap-4">
                         {/* Theme Toggle */}
                         <motion.button
                             onClick={toggleTheme}
-                            className="p-2 rounded-lg bg-background-secondary hover:bg-background-tertiary text-text-secondary hover:text-accent transition-colors"
+                            className="p-2 rounded-lg hover:bg-background-tertiary text-text-secondary hover:text-accent transition-colors"
                             whileHover={{ scale: 1.1 }}
-                            whileTap={{ scale: 0.9 }}
-                            aria-label="Toggle Theme"
+                            whileTap={{ scale: 0.95 }}
+                            title={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
                         >
-                            {theme === 'dark' ? (
-                                <Sun className="w-5 h-5" />
-                            ) : (
-                                <Moon className="w-5 h-5" />
-                            )}
+                            {theme === 'light' ? <Moon className="w-5 h-5" /> : <Sun className="w-5 h-5" />}
                         </motion.button>
 
                         {/* Audio Toggle */}
                         <motion.button
                             onClick={toggleMute}
-                            className="p-2 rounded-lg bg-background-secondary hover:bg-background-tertiary transition-colors"
+                            className="p-2 rounded-lg hover:bg-background-tertiary text-text-secondary hover:text-accent transition-colors"
                             whileHover={{ scale: 1.1 }}
-                            whileTap={{ scale: 0.9 }}
+                            whileTap={{ scale: 0.95 }}
+                            title={isMuted ? 'Unmute' : 'Mute'}
                         >
-                            {isMuted ? (
-                                <VolumeX className="w-5 h-5 text-text-muted" />
-                            ) : (
-                                <Volume2 className="w-5 h-5 text-accent" />
-                            )}
+                            {isMuted ? <VolumeX className="w-5 h-5" /> : <Volume2 className="w-5 h-5" />}
                         </motion.button>
 
                         {/* User Profile */}
                         {user.name && (
-                            <Link to="/profile">
-                                <motion.div
-                                    className="hidden sm:flex items-center gap-2 px-4 py-2 rounded-lg bg-background-secondary hover:bg-background-tertiary transition-colors cursor-pointer border border-border"
-                                    initial={{ opacity: 0, x: 20 }}
-                                    animate={{ opacity: 1, x: 0 }}
-                                    whileHover={{ scale: 1.05 }}
-                                >
-                                    <span className="text-2xl">{user.avatar}</span>
-                                    <span className="text-text font-medium">{user.name}</span>
-                                </motion.div>
+                            <Link
+                                to="/profile"
+                                className="p-2 rounded-lg hover:bg-background-tertiary text-text-secondary hover:text-accent transition-colors"
+                                title="Profile"
+                            >
+                                <User className="w-5 h-5" />
                             </Link>
                         )}
+                    </div>
 
-                        {/* Mobile User Icon */}
-                        {user.name && (
-                            <Link to="/profile" className="sm:hidden">
-                                <motion.button
-                                    className="p-2 rounded-lg bg-background-secondary hover:bg-background-tertiary transition-colors"
-                                    whileHover={{ scale: 1.1 }}
-                                    whileTap={{ scale: 0.9 }}
-                                >
-                                    <User className="w-5 h-5 text-text" />
-                                </motion.button>
-                            </Link>
-                        )}
+                    {/* Mobile Menu / Toggles Button */}
+                    <div className="md:hidden flex items-center gap-2">
+                        {/* Mobile Theme Toggle */}
+                        <motion.button
+                            onClick={toggleTheme}
+                            className="p-2 rounded-lg hover:bg-background-tertiary text-text-secondary hover:text-accent transition-colors"
+                            whileHover={{ scale: 1.1 }}
+                            whileTap={{ scale: 0.95 }}
+                        >
+                            {theme === 'light' ? <Moon className="w-5 h-5" /> : <Sun className="w-5 h-5" />}
+                        </motion.button>
+
+                        {/* Mobile Audio Toggle */}
+                        <motion.button
+                            onClick={toggleMute}
+                            className="p-2 rounded-lg hover:bg-background-tertiary text-text-secondary hover:text-accent transition-colors"
+                            whileHover={{ scale: 1.1 }}
+                            whileTap={{ scale: 0.95 }}
+                        >
+                            {isMuted ? <VolumeX className="w-5 h-5" /> : <Volume2 className="w-5 h-5" />}
+                        </motion.button>
 
                         {/* Mobile Menu Button */}
-                        <motion.button
+                        <button
                             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                            className="md:hidden p-2 rounded-lg bg-background-secondary hover:bg-background-tertiary transition-colors"
-                            whileHover={{ scale: 1.1 }}
-                            whileTap={{ scale: 0.9 }}
+                            className="p-2 rounded-lg text-text-secondary hover:text-accent transition-colors"
                         >
-                            {mobileMenuOpen ? (
-                                <X className="w-6 h-6 text-text" />
-                            ) : (
-                                <Menu className="w-6 h-6 text-text" />
-                            )}
-                        </motion.button>
+                            {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+                        </button>
                     </div>
                 </div>
             </div>

@@ -3,16 +3,19 @@ import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Trophy, Medal, ArrowLeft, ChevronLeft, ChevronRight, Filter, X } from 'lucide-react';
 import { useQuiz } from '../context/QuizContext';
-import { dummyLeaderboard, addUserToLeaderboard, getPaginatedLeaderboard, filterLeaderboard } from '../data/dummyLeaderboard';
+import { dummyLeaderboard, getPaginatedLeaderboard, filterLeaderboard } from '../data/dummyLeaderboard';
+import { getLeaderboard } from '../services/apiService';
 import { formatDate } from '../utils/helpers';
 import GlassCard from '../components/ui/GlassCard';
 import Button from '../components/ui/Button';
 
 const Leaderboard = () => {
     const navigate = useNavigate();
-    const { user, score, quizConfig } = useQuiz();
+    const { user } = useQuiz();
     const [currentPage, setCurrentPage] = useState(1);
     const [leaderboardData, setLeaderboardData] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState('');
     const [showFilters, setShowFilters] = useState(false);
     const [filters, setFilters] = useState({
         topic: 'All',
@@ -23,17 +26,40 @@ const Leaderboard = () => {
     const itemsPerPage = 10;
 
     useEffect(() => {
-        // Add current user to leaderboard if they have a score
-        let data = [...dummyLeaderboard];
-        if (user.name && score > 0) {
-            data = addUserToLeaderboard(user.name, score, user.avatar, quizConfig.topic, quizConfig.difficulty);
-        }
+        let ignore = false;
 
-        // Apply filters
-        const filtered = filterLeaderboard(data, filters);
-        setLeaderboardData(filtered);
-        setCurrentPage(1); // Reset to first page when filters change
-    }, [user, score, quizConfig, filters]);
+        const loadLeaderboard = async () => {
+            setLoading(true);
+            setError('');
+            try {
+                const result = await getLeaderboard(filters);
+                if (!ignore) {
+                    const data = result.leaderboard.map((entry) => ({
+                        ...entry,
+                        isCurrentUser: user.name && entry.name.toLowerCase() === user.name.toLowerCase()
+                    }));
+                    setLeaderboardData(data);
+                    setCurrentPage(1);
+                }
+            } catch (err) {
+                const fallback = filterLeaderboard(dummyLeaderboard, filters);
+                if (!ignore) {
+                    setError(`${err.message}. Showing sample leaderboard data.`);
+                    setLeaderboardData(fallback);
+                    setCurrentPage(1);
+                }
+            } finally {
+                if (!ignore) {
+                    setLoading(false);
+                }
+            }
+        };
+
+        loadLeaderboard();
+        return () => {
+            ignore = true;
+        };
+    }, [user.name, filters]);
 
     const paginatedData = getPaginatedLeaderboard(leaderboardData, currentPage, itemsPerPage);
 
@@ -199,8 +225,21 @@ const Leaderboard = () => {
                     </p>
                 </motion.div>
 
+                {error && (
+                    <div className="mb-6 rounded-xl border border-status-warning/30 bg-status-warning/10 px-4 py-3 text-sm text-status-warning">
+                        {error}
+                    </div>
+                )}
+
+                {loading && (
+                    <GlassCard className="p-8 text-center mb-6">
+                        <div className="spinner mx-auto mb-4" />
+                        <p className="text-text-secondary">Loading leaderboard...</p>
+                    </GlassCard>
+                )}
+
                 {/* Top 3 Podium */}
-                {currentPage === 1 && leaderboardData.length >= 3 && !hasActiveFilters && (
+                {!loading && currentPage === 1 && leaderboardData.length >= 3 && !hasActiveFilters && (
                     <div className="grid grid-cols-3 gap-2 sm:gap-4 mb-12 max-w-3xl mx-auto">
                         {/* 2nd Place */}
                         <motion.div
@@ -250,7 +289,7 @@ const Leaderboard = () => {
                 )}
 
                 {/* Leaderboard Table */}
-                {leaderboardData.length > 0 ? (
+                {!loading && leaderboardData.length > 0 ? (
                     <>
                         <GlassCard className="p-4 sm:p-6 mb-6">
                             <div className="space-y-2">
@@ -390,7 +429,7 @@ const Leaderboard = () => {
                             </div>
                         )}
                     </>
-                ) : (
+                ) : !loading && (
                     <GlassCard className="p-12 text-center">
                         <div className="text-6xl mb-4">🔍</div>
                         <h3 className="text-2xl font-bold text-white mb-2">No Results Found</h3>

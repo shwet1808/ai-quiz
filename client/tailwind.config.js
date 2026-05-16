@@ -64,6 +64,9 @@ export default {
             boxShadow: {
                 'warm': '0 4px 20px -4px rgba(249, 115, 22, 0.1)',
                 'warm-lg': '0 8px 30px -4px rgba(249, 115, 22, 0.2)',
+                'soft': '0 12px 30px -18px rgba(15, 23, 42, 0.35)',
+                'soft-lg': '0 20px 45px -24px rgba(15, 23, 42, 0.45)',
+                'soft-dark': '0 18px 50px -26px rgba(0, 0, 0, 0.65)',
             },
         },
     },

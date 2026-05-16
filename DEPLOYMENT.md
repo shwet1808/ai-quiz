@@ -1,39 +1,54 @@
-# Deployment Guide for Render
+# Deployment Guide
 
-This project consists of two parts: a **Node.js Backend** and a **React Frontend**, now separated into `server` and `client` directories.
+This project has two deployable apps:
 
-## 1. Backend Deployment (Web Service)
+- `server/`: Express API
+- `client/`: Vite static frontend
 
-Create a new **Web Service** on Render connected to this repository.
+## Backend Web Service
 
-*   **Name:** `ai-quiz-backend`
-*   **Root Directory:** `ai-quiz-backend`
-*   **Environment:** `Node`
-*   **Build Command:** `npm install`
-*   **Start Command:** `node index.js`
+Use these settings on Render, Railway, Fly.io, or another Node host:
 
-### Environment Variables (Backend)
-Add these in the "Environment" tab:
-*   `GEMINI_API_KEY`: Your Google Gemini API Key.
-*   `FRONTEND_URL`: The URL of your deployed frontend (e.g., `https://ai-quiz-frontend.onrender.com`).
+- Root directory: `server`
+- Build command: `npm install`
+- Start command: `npm start`
+- Default port: set by the host through `PORT`
 
-## 2. Frontend Deployment (Static Site)
+Backend environment variables:
 
-Create a new **Static Site** on Render connected to this repository.
+```env
+PORT=5000
+CLIENT_ORIGIN=https://your-frontend-domain.com
+OPENAI_API_KEY=your_openai_key_optional
+OPENAI_MODEL=gpt-4o-mini
+```
 
-*   **Name:** `ai-quiz-frontend`
-*   **Root Directory:** `client`
-*   **Build Command:** `npm install && npm run build`
-*   **Publish Directory:** `dist`
+If `OPENAI_API_KEY` is empty, the API uses the local mock quiz generator.
 
-### Environment Variables (Frontend)
-Add this in the "Environment" tab:
-*   `VITE_API_URL`: The URL of your deployed backend (e.g., `https://ai-quiz-backend.onrender.com`).
+## Frontend Static Site
 
-## Important Code Check
-Before deploying, ensure your frontend API calls use the environment variable.
+Use these settings:
 
-Check where you define the API base URL (e.g., `src/config.js` or `src/api/axios.js`). It should look something like:
-```javascript
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+- Root directory: `client`
+- Build command: `npm install && npm run build`
+- Publish directory: `dist`
+
+Frontend environment variables:
+
+```env
+VITE_API_URL=https://your-backend-domain.com
+```
+
+## Local Production Check
+
+```bash
+npm run install:all
+npm run build
+npm start
+```
+
+Then serve or preview the client:
+
+```bash
+npm run preview --prefix client
 ```

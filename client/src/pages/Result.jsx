@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import confetti from 'canvas-confetti';
-import { Trophy, RotateCcw, List, Award } from 'lucide-react';
+import { Trophy, RotateCcw, List, Award, TrendingUp, Clock } from 'lucide-react';
 import { useQuiz } from '../context/QuizContext';
 import { useAudio } from '../context/AudioContext';
 import { calculateScore, calculateCoins, getPerformanceMessage } from '../utils/helpers';
@@ -12,10 +12,13 @@ import ReviewAnswers from '../components/result/ReviewAnswers';
 
 const Result = () => {
     const navigate = useNavigate();
-    const { questions, answers, score, user, quizConfig, resetQuiz } = useQuiz();
+    const { questions, answers, score, quizConfig, resetQuiz, submitQuiz } = useQuiz();
     const { playSound } = useAudio();
     const [showReview, setShowReview] = useState(false);
     const [animatedScore, setAnimatedScore] = useState(0);
+    const [savedAttempt, setSavedAttempt] = useState(null);
+    const [saveError, setSaveError] = useState('');
+    const hasSubmittedRef = useRef(false);
 
     const scoreData = calculateScore(answers, questions);
     const coins = calculateCoins(score, quizConfig.difficulty);
@@ -78,6 +81,30 @@ const Result = () => {
         return () => clearInterval(timer);
     }, [score]);
 
+    useEffect(() => {
+        let ignore = false;
+
+        const saveResult = async () => {
+            if (!questions.length || hasSubmittedRef.current) return;
+            hasSubmittedRef.current = true;
+            try {
+                const attempt = await submitQuiz();
+                if (!ignore) {
+                    setSavedAttempt(attempt);
+                }
+            } catch (error) {
+                if (!ignore) {
+                    setSaveError(error.message || 'Could not save quiz result');
+                }
+            }
+        };
+
+        saveResult();
+        return () => {
+            ignore = true;
+        };
+    }, [questions.length, savedAttempt, submitQuiz]);
+
     const handlePlayAgain = () => {
         resetQuiz();
         navigate('/');
@@ -132,6 +159,19 @@ const Result = () => {
                             {performanceMessage}
                         </p>
 
+                        <div className="mb-6 text-sm">
+                            {savedAttempt && (
+                                <span className="inline-flex rounded-full bg-status-success/15 px-4 py-2 font-medium text-status-success">
+                                    Result saved to your profile
+                                </span>
+                            )}
+                            {saveError && (
+                                <span className="inline-flex rounded-full bg-status-error/15 px-4 py-2 font-medium text-status-error">
+                                    {saveError}
+                                </span>
+                            )}
+                        </div>
+
                         {/* Score Display */}
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                             <div className="bg-background-secondary rounded-xl p-6 border border-border">
@@ -166,6 +206,32 @@ const Result = () => {
                             <Award className="w-6 h-6" />
                             <span className="text-lg font-bold">+{coins} Coins Earned!</span>
                         </motion.div>
+
+                        {/* Performance Analysis */}
+                        <div className="bg-background-tertiary/50 rounded-xl p-6 mb-8 border border-border">
+                            <h3 className="text-lg font-semibold text-text mb-4 flex items-center gap-2">
+                                <TrendingUp className="w-5 h-5 text-accent" />
+                                Performance Analysis
+                            </h3>
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                <div>
+                                    <div className="text-2xl font-bold text-status-success">{scoreData.correct}</div>
+                                    <div className="text-xs text-text-muted">Correct</div>
+                                </div>
+                                <div>
+                                    <div className="text-2xl font-bold text-status-error">{scoreData.incorrect}</div>
+                                    <div className="text-xs text-text-muted">Incorrect</div>
+                                </div>
+                                <div>
+                                    <div className="text-2xl font-bold text-text-muted">{scoreData.skipped}</div>
+                                    <div className="text-xs text-text-muted">Skipped</div>
+                                </div>
+                                <div>
+                                    <div className="text-2xl font-bold text-accent">{scoreData.percentage}%</div>
+                                    <div className="text-xs text-text-muted">Success Rate</div>
+                                </div>
+                            </div>
+                        </div>
 
                         {/* Action Buttons */}
                         <div className="flex flex-wrap gap-4 justify-center">
